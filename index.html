@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Budget">
+<meta name="theme-color" content="#1C2620">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Budget mensuel</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+html, body { margin:0; padding:0; background:#EEF1EC; }
+
+.bm-root {
+  --bg: #EEF1EC;
+  --surface: #FFFFFF;
+  --ink: #1C2620;
+  --ink-soft: #5B665F;
+  --brass: #9C6F32;
+  --brass-soft: #F1E6D3;
+  --green: #33694A;
+  --green-soft: #E3F0E7;
+  --red: #A8412B;
+  --red-soft: #F7E5E0;
+  --line: #DBE0D8;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  padding: 20px 16px 40px;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+.bm-root * { box-sizing: border-box; }
+
+.bm-header { margin-bottom: 20px; }
+.bm-eyebrow { font-size:12px; color:var(--brass); font-weight:600; }
+.bm-title { font-family:'Fraunces',serif; font-size:28px; font-weight:600; margin:2px 0 0; }
+
+.bm-card { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px; margin-bottom:14px; }
+.bm-card h2 { font-family:'Fraunces',serif; font-size:16px; font-weight:600; margin:0 0 14px; }
+
+.bm-field { margin-bottom:12px; }
+.bm-field label { display:block; font-size:12.5px; color:var(--ink-soft); margin-bottom:5px; }
+.bm-field input { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:6px; font-size:15px; background:#FBFCFA; color:var(--ink); font-family:'Inter',sans-serif; }
+.bm-field input:focus { outline:2px solid var(--brass); border-color:var(--brass); }
+
+.bm-presets { display:flex; gap:8px; margin-top:8px; }
+.bm-preset-btn { flex:1; padding:8px; border:1px solid var(--line); background:#FBFCFA; border-radius:6px; font-size:13px; color:var(--ink-soft); cursor:pointer; font-family:'Inter',sans-serif; }
+.bm-preset-btn:hover { border-color:var(--brass); color:var(--brass); }
+
+.bm-total-card { background:var(--ink); color:#F4F6F2; border-radius:10px; padding:20px 18px; margin-bottom:14px; }
+.bm-total-label { font-size:12.5px; color:#B9C2BB; margin-bottom:4px; }
+.bm-total-value { font-family:'Fraunces',serif; font-size:40px; font-weight:600; transition: color .25s ease; }
+.bm-total-value.neg { color:#E8A392; }
+.bm-breakdown { margin-top:16px; border-top:1px solid rgba(255,255,255,.15); padding-top:12px; }
+.bm-line { display:flex; justify-content:space-between; font-size:13.5px; padding:5px 0; color:#D3D9CE; }
+.bm-line .bm-line-label { color:#9AA69C; }
+.bm-line.bm-strong { color:#F4F6F2; font-weight:600; border-top:1px solid rgba(255,255,255,.15); margin-top:4px; padding-top:8px; }
+
+.bm-category-title { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+.bm-category-title span:first-child { font-family:'Fraunces',serif; font-size:15px; font-weight:600; }
+.bm-category-total { font-size:13px; color:var(--ink-soft); }
+
+.bm-item-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #EEF0EB; }
+.bm-item-row input[type="checkbox"] { width:18px; height:18px; accent-color: var(--brass); flex-shrink:0; }
+.bm-item-row input[type="text"] { flex:1; min-width:0; border:none; background:transparent; font-size:14.5px; color:var(--ink); padding:5px 4px; border-radius:5px; font-family:'Inter',sans-serif; }
+.bm-item-row input[type="text"]:focus { outline:none; background:var(--brass-soft); }
+.bm-item-row .bm-amount-wrap { display:flex; align-items:center; flex-shrink:0; }
+.bm-item-row input[type="number"] { width:70px; text-align:right; border:none; background:transparent; font-size:14.5px; color:var(--ink); padding:5px 4px; border-radius:5px; font-family:'Inter',sans-serif; }
+.bm-item-row input[type="number"]:focus { outline:none; background:var(--brass-soft); }
+.bm-item-row.unchecked input[type="text"],
+.bm-item-row.unchecked .bm-amount-wrap { opacity:0.4; text-decoration:line-through; }
+.bm-del-btn { background:none; border:none; color:#B7BEB4; cursor:pointer; font-size:15px; padding:2px 4px; line-height:1; flex-shrink:0; }
+.bm-del-btn:hover { color:var(--red); }
+
+.bm-add-btn { background:none; border:none; color:var(--brass); font-size:12.5px; font-weight:600; cursor:pointer; padding:8px 0 0; }
+.bm-add-btn:hover { text-decoration:underline; }
+
+.bm-status { font-size:11px; color:var(--ink-soft); text-align:center; margin-top:4px; min-height:14px; }
+.bm-reset { text-align:center; margin-top:10px; }
+.bm-reset button { background:none; border:none; color:var(--ink-soft); font-size:11.5px; text-decoration:underline; cursor:pointer; font-family:'Inter',sans-serif; }
+.bm-goal-bar { height:10px; background:rgba(255,255,255,.15); border-radius:5px; overflow:hidden; margin-top:14px; }
+.bm-goal-fill { height:100%; width:0; background:#8FC4A0; transition:width .3s ease; }
+.bm-goal-msg { font-size:12.5px; color:#B9C2BB; margin-top:6px; }
+.bm-spent-row { display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); padding:4px 0 8px 26px; border-bottom:1px solid #EEF0EB; }
+.bm-spent-row.unchecked { opacity:0.4; }
+.bm-spent-row input { width:68px; text-align:right; border:1px solid var(--line); border-radius:5px; padding:4px 6px; font-size:13px; background:#FBFCFA; color:var(--ink); font-family:'Inter',sans-serif; }
+.bm-bar-row { display:flex; align-items:center; gap:8px; font-size:12.5px; margin:7px 0; }
+.bm-bar-label { width:110px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--ink-soft); }
+.bm-bar-track { flex:1; height:10px; background:#EEF0EB; border-radius:5px; overflow:hidden; }
+.bm-bar-val { width:56px; text-align:right; flex-shrink:0; }
+.bm-avg { font-size:12.5px; color:var(--ink-soft); padding-top:8px; }
+</style>
+</head>
+<body>
+
+<div class="bm-root" id="bm-root">
+  <div class="bm-header">
+    <div class="bm-eyebrow">Budget personnel</div>
+    <h1 class="bm-title">Mon budget mensuel</h1>
+  </div>
+
+  <div class="bm-card">
+    <h2>Salaire et objectif</h2>
+    <div class="bm-field">
+      <label for="bm-salaire">Salaire perçu (€)</label>
+      <input type="number" id="bm-salaire" placeholder="ex : 2000" />
+    </div>
+    <div class="bm-field">
+      <label for="bm-objectif">Objectif d’épargne (€)</label>
+      <input type="number" id="bm-objectif" placeholder="ex : 300" />
+    </div>
+  </div>
+
+  <div class="bm-total-card">
+    <div class="bm-total-label">Épargne possible ce mois-ci</div>
+    <div class="bm-total-value" id="bm-total-value">0,00 €</div>
+    <div class="bm-goal-bar"><div class="bm-goal-fill" id="bm-goal-fill"></div></div>
+    <div class="bm-goal-msg" id="bm-goal-msg"></div>
+    <div class="bm-breakdown">
+      <div class="bm-line"><span class="bm-line-label">Salaire perçu</span><span id="bm-out-salaire">—</span></div>
+      <div class="bm-line"><span class="bm-line-label">Dépenses fixes</span><span id="bm-out-fixe">—</span></div>
+      <div class="bm-line"><span class="bm-line-label">Dépenses quotidiennes</span><span id="bm-out-quotidien">—</span></div>
+      <div class="bm-line"><span class="bm-line-label">Quotidien dépensé / prévu</span><span id="bm-out-spent">—</span></div>
+      <div class="bm-line bm-strong"><span>Total des charges</span><span id="bm-out-total-charges">—</span></div>
+    </div>
+  </div>
+
+  <div class="bm-card" id="bm-cat-fixe">
+    <div class="bm-category-title"><span>Dépenses fixes</span><span class="bm-category-total" data-cat-total="fixe">—</span></div>
+    <div class="bm-items" data-cat="fixe"></div>
+    <button class="bm-add-btn" data-add-cat="fixe">+ Ajouter une charge fixe</button>
+  </div>
+
+  <div class="bm-card" id="bm-cat-quotidien">
+    <div class="bm-category-title"><span>Dépenses quotidiennes</span><span class="bm-category-total" data-cat-total="quotidien">—</span></div>
+    <div class="bm-items" data-cat="quotidien"></div>
+    <button class="bm-add-btn" data-add-cat="quotidien">+ Ajouter une dépense</button>
+  </div>
+
+  <div class="bm-card">
+    <h2>Où va l’argent</h2>
+    <div id="bm-chart"></div>
+  </div>
+
+  <div class="bm-card">
+    <h2>Historique</h2>
+    <div id="bm-history"></div>
+    <button class="bm-add-btn" id="bm-close-btn">Clôturer le mois en cours</button>
+  </div>
+
+  <div class="bm-status" id="bm-status"></div>
+  <div class="bm-reset"><button id="bm-reset-btn">Réinitialiser avec mes charges actuelles</button></div>
+</div>
+
+<script>
+(function () {
+  const root = document.getElementById('bm-root');
+
+  const DEFAULTS = {
+    salaire: 2000,
+    objectif: 0,
+    history: [],
+    categories: {
+      fixe: [
+        { label: 'Mtsango (cagnotte famille)', amount: 250, checked: true },
+        { label: 'Crédit', amount: 150, checked: true },
+        { label: 'Assurance', amount: 38, checked: true },
+        { label: 'Abonnement', amount: 65, checked: true }
+      ],
+      quotidien: [
+        { label: 'Essence (~50€/semaine)', amount: 200, checked: true },
+        { label: "Nadj'ma", amount: 200, checked: true },
+        { label: 'Fast food', amount: 200, checked: true },
+        { label: 'Leclerc (courses)', amount: 150, checked: true },
+        { label: 'Coiffeur', amount: 20, checked: true }
+      ]
+    }
+  };
+
+  let state = JSON.parse(JSON.stringify(DEFAULTS));
+
+  function fmtEUR(n) {
+    if (n === null || n === undefined || isNaN(n)) return '—';
+    return n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+  }
+
+  function setStatus(msg) {
+    const el = root.querySelector('#bm-status');
+    el.textContent = msg;
+    if (msg) setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 1500);
+  }
+
+  function save() {
+    try {
+      localStorage.setItem('bm-state', JSON.stringify(state));
+      setStatus('Enregistré');
+    } catch (e) {
+      setStatus('Non sauvegardé (stockage indisponible)');
+    }
+  }
+
+  function load() {
+    try {
+      const s = localStorage.getItem('bm-state');
+      if (s) state = Object.assign({ objectif: 0, history: [] }, JSON.parse(s));
+    } catch (e) { /* pas de données sauvegardées */ }
+  }
+
+  function renderSalaire() {
+    root.querySelector('#bm-salaire').value = state.salaire;
+    root.querySelector('#bm-objectif').value = state.objectif || '';
+  }
+
+  function renderItems(cat) {
+    const container = root.querySelector('.bm-items[data-cat="' + cat + '"]');
+    container.innerHTML = '';
+    state.categories[cat].forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'bm-item-row' + (item.checked ? '' : ' unchecked');
+      row.innerHTML =
+        '<input type="checkbox" data-cat="' + cat + '" data-idx="' + idx + '" data-field="checked" ' + (item.checked ? 'checked' : '') + '>' +
+        '<input type="text" data-cat="' + cat + '" data-idx="' + idx + '" data-field="label" value="' + item.label.replace(/"/g, '&quot;') + '">' +
+        '<div class="bm-amount-wrap"><input type="number" step="any" data-cat="' + cat + '" data-idx="' + idx + '" data-field="amount" value="' + item.amount + '"><span style="color:var(--ink-soft);font-size:13px;">€</span></div>' +
+        '<button class="bm-del-btn" data-cat="' + cat + '" data-idx="' + idx + '" title="Supprimer">✕</button>';
+      container.appendChild(row);
+      if (cat === 'quotidien') {
+        const sp = document.createElement('div');
+        sp.className = 'bm-spent-row' + (item.checked ? '' : ' unchecked');
+        sp.innerHTML = '<span>Dépensé</span><input type="number" step="any" placeholder="0" data-cat="' + cat + '" data-idx="' + idx + '" data-field="spent" value="' + (item.spent || '') + '"><span>€ · reste <b data-rest="' + idx + '"></b></span>';
+        container.appendChild(sp);
+      }
+    });
+  }
+
+  function renderAll() {
+    renderSalaire();
+    renderItems('fixe');
+    renderItems('quotidien');
+    renderHistory();
+  }
+
+  function categoryTotal(cat) {
+    return state.categories[cat].reduce((sum, i) => sum + (i.checked ? (parseFloat(i.amount) || 0) : 0), 0);
+  }
+
+  function compute() {
+    const salaire = parseFloat(state.salaire) || 0;
+    const totalFixe = categoryTotal('fixe');
+    const totalQuotidien = categoryTotal('quotidien');
+    const totalCharges = totalFixe + totalQuotidien;
+    const epargne = salaire - totalCharges;
+
+    const totalEl = root.querySelector('#bm-total-value');
+    totalEl.textContent = fmtEUR(epargne);
+    totalEl.classList.toggle('neg', epargne < 0);
+
+    root.querySelector('#bm-out-salaire').textContent = fmtEUR(salaire);
+    root.querySelector('#bm-out-fixe').textContent = fmtEUR(totalFixe);
+    root.querySelector('#bm-out-quotidien').textContent = fmtEUR(totalQuotidien);
+    root.querySelector('#bm-out-total-charges').textContent = fmtEUR(totalCharges);
+
+    root.querySelector('[data-cat-total="fixe"]').textContent = fmtEUR(totalFixe);
+    root.querySelector('[data-cat-total="quotidien"]').textContent = fmtEUR(totalQuotidien);
+
+    const objectif = parseFloat(state.objectif) || 0;
+    const fill = root.querySelector('#bm-goal-fill'), msg = root.querySelector('#bm-goal-msg');
+    if (objectif > 0) {
+      fill.style.width = (Math.max(0, Math.min(1, epargne / objectif)) * 100) + '%';
+      msg.textContent = epargne >= objectif ? 'Objectif atteint, ' + fmtEUR(epargne - objectif) + ' de marge' : 'Il manque ' + fmtEUR(objectif - epargne) + ' pour atteindre ton objectif';
+    } else {
+      fill.style.width = '0%';
+      msg.textContent = 'Définis un objectif pour suivre ta progression';
+    }
+
+    let spentTotal = 0;
+    state.categories.quotidien.forEach((it, idx) => {
+      const sp = it.checked ? (parseFloat(it.spent) || 0) : 0;
+      spentTotal += sp;
+      const el = root.querySelector('[data-rest="' + idx + '"]');
+      if (el) {
+        const r = (parseFloat(it.amount) || 0) - sp;
+        el.textContent = fmtEUR(r);
+        el.style.color = r < 0 ? 'var(--red)' : 'var(--green)';
+      }
+    });
+    root.querySelector('#bm-out-spent').textContent = fmtEUR(spentTotal) + ' / ' + fmtEUR(totalQuotidien);
+
+    renderChart();
+  }
+
+  function renderChart() {
+    const rows = [];
+    ['fixe', 'quotidien'].forEach(cat => state.categories[cat].forEach(i => {
+      const a = parseFloat(i.amount) || 0;
+      if (i.checked && a > 0) rows.push({ label: i.label, a: a });
+    }));
+    rows.sort((x, y) => y.a - x.a);
+    const max = rows.length ? rows[0].a : 1;
+    const total = rows.reduce((s, r) => s + r.a, 0);
+    const box = root.querySelector('#bm-chart');
+    box.innerHTML = rows.length ? '' : '<div style="font-size:13px;color:var(--ink-soft)">Aucune dépense cochée</div>';
+    rows.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'bm-bar-row';
+      d.innerHTML = '<span class="bm-bar-label"></span><span class="bm-bar-track"><span style="display:block;height:100%;background:var(--brass);width:' + (r.a / max * 100) + '%"></span></span><span class="bm-bar-val">' + Math.round(r.a) + ' €</span>';
+      d.firstChild.textContent = r.label;
+      d.title = Math.round(r.a / total * 100) + ' % des charges';
+      box.appendChild(d);
+    });
+  }
+
+  function renderHistory() {
+    const box = root.querySelector('#bm-history');
+    const h = state.history || [];
+    if (!h.length) {
+      box.innerHTML = '<div style="font-size:13px;color:var(--ink-soft)">Aucun mois enregistré pour l’instant.</div>';
+      return;
+    }
+    box.innerHTML = '';
+    h.slice().reverse().forEach((e, k) => {
+      const idx = h.length - 1 - k;
+      const row = document.createElement('div');
+      row.className = 'bm-item-row';
+      row.innerHTML = '<span style="flex:1;font-size:14.5px;text-transform:capitalize"></span><span style="font-size:14.5px;font-weight:600"></span><button class="bm-del-btn" data-hdel="' + idx + '" title="Supprimer">✕</button>';
+      row.children[0].textContent = e.label;
+      row.children[1].textContent = fmtEUR(e.epargne);
+      row.children[1].style.color = e.epargne < 0 ? 'var(--red)' : 'var(--green)';
+      box.appendChild(row);
+    });
+    if (h.length > 1) {
+      const avg = h.reduce((s, e) => s + e.epargne, 0) / h.length;
+      const a = document.createElement('div');
+      a.className = 'bm-avg';
+      a.textContent = 'Moyenne : ' + fmtEUR(avg) + ' par mois';
+      box.appendChild(a);
+    }
+  }
+
+  function attachListeners() {
+    root.querySelector('#bm-salaire').addEventListener('input', (e) => {
+      state.salaire = e.target.value;
+      compute(); save();
+    });
+
+    root.querySelector('#bm-objectif').addEventListener('input', (e) => {
+      state.objectif = e.target.value;
+      compute(); save();
+    });
+
+    root.addEventListener('input', (e) => {
+      const t = e.target;
+      if (t.dataset && t.dataset.cat && t.dataset.field && t.dataset.field !== 'checked') {
+        const cat = t.dataset.cat, idx = parseInt(t.dataset.idx, 10), field = t.dataset.field;
+        state.categories[cat][idx][field] = (field === 'amount' || field === 'spent') ? (parseFloat(t.value) || 0) : t.value;
+        if (field !== 'label') { compute(); }
+        else { compute(); }
+        save();
+      }
+    });
+
+    root.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.dataset && t.dataset.field === 'checked') {
+        const cat = t.dataset.cat, idx = parseInt(t.dataset.idx, 10);
+        state.categories[cat][idx].checked = t.checked;
+        renderItems(cat);
+        compute(); save();
+      }
+    });
+
+    root.addEventListener('click', (e) => {
+      const t = e.target;
+      if (t.dataset && t.dataset.hdel !== undefined) {
+        state.history.splice(parseInt(t.dataset.hdel, 10), 1);
+        renderHistory(); save();
+        return;
+      }
+      if (t.classList.contains('bm-del-btn')) {
+        const cat = t.dataset.cat, idx = parseInt(t.dataset.idx, 10);
+        state.categories[cat].splice(idx, 1);
+        renderItems(cat); compute(); save();
+      }
+      if (t.dataset && t.dataset.addCat) {
+        const cat = t.dataset.addCat;
+        state.categories[cat].push({ label: 'Nouvelle dépense', amount: 0, checked: true });
+        renderItems(cat); compute(); save();
+      }
+    });
+
+    root.querySelector('#bm-close-btn').addEventListener('click', () => {
+      const label = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const salaire = parseFloat(state.salaire) || 0;
+      const spent = state.categories.quotidien.reduce((s, i) => s + (i.checked ? (parseFloat(i.spent) || 0) : 0), 0);
+      const charges = categoryTotal('fixe') + (spent > 0 ? spent : categoryTotal('quotidien'));
+      const entry = { label: label, salaire: salaire, charges: charges, epargne: salaire - charges };
+      const i = state.history.findIndex(e => e.label === label);
+      if (i >= 0) {
+        if (!confirm('Ce mois est déjà enregistré. Le remplacer ?')) return;
+        state.history[i] = entry;
+      } else {
+        state.history.push(entry);
+      }
+      renderHistory(); save();
+    });
+
+    root.querySelector('#bm-reset-btn').addEventListener('click', () => {
+      if (confirm('Réinitialiser avec les charges actuelles par défaut ? Tes modifications seront perdues.')) {
+        const keepHistory = state.history, keepGoal = state.objectif;
+        state = JSON.parse(JSON.stringify(DEFAULTS));
+        state.history = keepHistory;
+        state.objectif = keepGoal;
+        renderAll(); compute(); save();
+      }
+    });
+  }
+
+  function init() {
+    load();
+    renderAll();
+    attachListeners();
+    compute();
+  }
+
+  init();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>

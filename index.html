@@ -90,6 +90,18 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 .bm-goal-msg { font-size:12.5px; color:#B9C2BB; margin-top:6px; }
 .bm-spent-row { display:flex; justify-content:flex-end; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); padding:4px 0 8px 26px; border-bottom:1px solid #EEF0EB; }
 .bm-spent-row.unchecked { opacity:0.4; }
+.bm-spent-row { flex-wrap:wrap; }
+.bm-plus { background:var(--brass-soft); color:var(--brass); border:none; border-radius:5px; padding:5px 9px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+.bm-pbar { flex-basis:100%; height:5px; background:#E6EAE3; border-radius:3px; overflow:hidden; margin-top:4px; }
+.bm-pbar i { display:block; height:100%; width:0; background:var(--green); transition:width .3s ease; }
+.bm-rv-main { font-family:'Fraunces',serif; font-size:30px; font-weight:600; }
+.bm-rv-main small { display:block; font-family:'Inter',sans-serif; font-size:12px; font-weight:400; color:var(--ink-soft); margin-top:2px; }
+.bm-rv-grid { display:flex; gap:8px; margin-top:12px; }
+.bm-rv-grid div { flex:1; background:#F4F6F2; border-radius:8px; padding:10px 8px; text-align:center; }
+.bm-rv-grid b { display:block; font-size:15px; }
+.bm-rv-grid span { font-size:11.5px; color:var(--ink-soft); }
+.bm-alert { font-size:12.5px; color:var(--red); margin-top:10px; }
+.bm-year { font-size:12.5px; color:#B9C2BB; margin-top:2px; }
 .bm-spent-row input { width:68px; text-align:right; border:1px solid var(--line); border-radius:5px; padding:4px 6px; font-size:13px; background:#FBFCFA; color:var(--ink); font-family:'Inter',sans-serif; }
 .bm-bar-row { display:flex; align-items:center; gap:8px; font-size:12.5px; margin:7px 0; }
 .bm-bar-label { width:110px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--ink-soft); }
@@ -123,6 +135,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <div class="bm-total-value" id="bm-total-value">0,00 €</div>
     <div class="bm-goal-bar"><div class="bm-goal-fill" id="bm-goal-fill"></div></div>
     <div class="bm-goal-msg" id="bm-goal-msg"></div>
+    <div class="bm-year" id="bm-year"></div>
     <div class="bm-breakdown">
       <div class="bm-line"><span class="bm-line-label">Salaire perçu</span><span id="bm-out-salaire">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Dépenses fixes</span><span id="bm-out-fixe">—</span></div>
@@ -130,6 +143,17 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       <div class="bm-line"><span class="bm-line-label">Quotidien dépensé / prévu</span><span id="bm-out-spent">—</span></div>
       <div class="bm-line bm-strong"><span>Total des charges</span><span id="bm-out-total-charges">—</span></div>
     </div>
+  </div>
+
+  <div class="bm-card">
+    <h2>Reste à vivre</h2>
+    <div class="bm-rv-main"><span id="bm-rv-total">—</span><small>disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits</small></div>
+    <div class="bm-rv-grid">
+      <div><b id="bm-rv-week">—</b><span>par semaine</span></div>
+      <div><b id="bm-rv-day">—</b><span>par jour</span></div>
+      <div><b id="bm-rv-days">—</b><span>restants</span></div>
+    </div>
+    <div class="bm-alert" id="bm-alert"></div>
   </div>
 
   <div class="bm-card" id="bm-cat-fixe">
@@ -233,7 +257,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       if (cat === 'quotidien') {
         const sp = document.createElement('div');
         sp.className = 'bm-spent-row' + (item.checked ? '' : ' unchecked');
-        sp.innerHTML = '<span>Dépensé</span><input type="number" step="any" placeholder="0" data-cat="' + cat + '" data-idx="' + idx + '" data-field="spent" value="' + (item.spent || '') + '"><span>€ · reste <b data-rest="' + idx + '"></b></span>';
+        sp.innerHTML = '<span>Dépensé</span><input type="number" step="any" placeholder="0" data-cat="' + cat + '" data-idx="' + idx + '" data-field="spent" value="' + (item.spent || '') + '"><span>€ · <b data-rest="' + idx + '"></b></span><button class="bm-plus" data-plus="' + idx + '">+ Ajouter</button><div class="bm-pbar"><i data-bar="' + idx + '"></i></div>';
         container.appendChild(sp);
       }
     });
@@ -254,7 +278,8 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     const salaire = parseFloat(state.salaire) || 0;
     const totalFixe = categoryTotal('fixe');
     const totalQuotidien = categoryTotal('quotidien');
-    const totalCharges = totalFixe + totalQuotidien;
+    const effQuot = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(parseFloat(i.amount) || 0, parseFloat(i.spent) || 0) : sum, 0);
+    const totalCharges = totalFixe + effQuot;
     const epargne = salaire - totalCharges;
 
     const totalEl = root.querySelector('#bm-total-value');
@@ -278,19 +303,39 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       fill.style.width = '0%';
       msg.textContent = 'Définis un objectif pour suivre ta progression';
     }
+    root.querySelector('#bm-year').textContent = epargne > 0 ? 'Au rythme actuel : ' + fmtEUR(epargne * 12) + ' épargnés sur 12 mois' : '';
 
     let spentTotal = 0;
+    const over = [];
     state.categories.quotidien.forEach((it, idx) => {
       const sp = it.checked ? (parseFloat(it.spent) || 0) : 0;
+      const bud = parseFloat(it.amount) || 0;
       spentTotal += sp;
+      if (it.checked && sp > bud && sp > 0) over.push(it.label);
       const el = root.querySelector('[data-rest="' + idx + '"]');
       if (el) {
-        const r = (parseFloat(it.amount) || 0) - sp;
-        el.textContent = fmtEUR(r);
+        const r = bud - sp;
+        el.textContent = r < 0 ? 'dépassé de ' + fmtEUR(-r) : 'reste ' + fmtEUR(r);
         el.style.color = r < 0 ? 'var(--red)' : 'var(--green)';
+      }
+      const bar = root.querySelector('[data-bar="' + idx + '"]');
+      if (bar) {
+        bar.style.width = (bud > 0 ? Math.min(1, sp / bud) * 100 : (sp > 0 ? 100 : 0)) + '%';
+        bar.style.background = sp > bud ? 'var(--red)' : (bud > 0 && sp / bud > 0.8 ? 'var(--brass)' : 'var(--green)');
       }
     });
     root.querySelector('#bm-out-spent').textContent = fmtEUR(spentTotal) + ' / ' + fmtEUR(totalQuotidien);
+
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysLeft = daysInMonth - now.getDate() + 1;
+    const dispo = salaire - totalFixe - objectif - spentTotal;
+    const setRv = (id, v) => { const e = root.querySelector(id); e.textContent = fmtEUR(v); e.style.color = v < 0 ? 'var(--red)' : ''; };
+    setRv('#bm-rv-total', dispo);
+    setRv('#bm-rv-day', dispo / daysLeft);
+    setRv('#bm-rv-week', dispo / daysLeft * 7);
+    root.querySelector('#bm-rv-days').textContent = daysLeft + (daysLeft > 1 ? ' jours' : ' jour');
+    root.querySelector('#bm-alert').textContent = over.length ? '⚠ Budget dépassé : ' + over.join(', ') : '';
 
     renderChart();
   }
@@ -377,6 +422,15 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 
     root.addEventListener('click', (e) => {
       const t = e.target;
+      if (t.dataset && t.dataset.plus !== undefined) {
+        const it = state.categories.quotidien[parseInt(t.dataset.plus, 10)];
+        const v = parseFloat(String(prompt('Montant dépensé à ajouter (€)') || '').replace(',', '.'));
+        if (v > 0) {
+          it.spent = Math.round(((parseFloat(it.spent) || 0) + v) * 100) / 100;
+          renderItems('quotidien'); compute(); save();
+        }
+        return;
+      }
       if (t.dataset && t.dataset.hdel !== undefined) {
         state.history.splice(parseInt(t.dataset.hdel, 10), 1);
         renderHistory(); save();
@@ -408,6 +462,10 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
         state.history.push(entry);
       }
       renderHistory(); save();
+      if (confirm('Mois enregistré. Remettre les dépenses saisies à zéro pour le nouveau mois ?')) {
+        state.categories.quotidien.forEach(i => { i.spent = 0; });
+        renderItems('quotidien'); compute(); save();
+      }
     });
 
     root.querySelector('#bm-reset-btn').addEventListener('click', () => {

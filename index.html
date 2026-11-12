@@ -109,6 +109,17 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 .bm-bar-track { flex:1; height:10px; background:#EEF0EB; border-radius:5px; overflow:hidden; }
 .bm-bar-val { width:56px; text-align:right; flex-shrink:0; }
 .bm-avg { font-size:12.5px; color:var(--ink-soft); padding-top:8px; }
+.bm-root { padding-bottom: 104px; }
+.bm-header .bm-status { text-align:left; margin-top:2px; }
+.bm-tab { display:none; }
+.bm-tab.active { display:block; animation: bmfade .25s ease; }
+@keyframes bmfade { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.bm-nav { position:fixed; left:0; right:0; bottom:0; z-index:50; background:#1C2620; border-top:1px solid rgba(255,255,255,.08); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.bm-nav-in { display:flex; max-width:640px; margin:0 auto; }
+.bm-nav button { flex:1; background:none; border:none; color:#8F9C93; padding:10px 4px 9px; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; font-family:'Inter',sans-serif; font-weight:500; cursor:pointer; position:relative; }
+.bm-nav button svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.bm-nav button.active { color:#E3B96B; }
+.bm-nav button.active::before { content:''; position:absolute; top:0; left:30%; right:30%; height:2px; background:#E3B96B; border-radius:0 0 2px 2px; }
 </style>
 </head>
 <body>
@@ -117,28 +128,10 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   <div class="bm-header">
     <div class="bm-eyebrow">Budget personnel</div>
     <h1 class="bm-title">Mon budget mensuel</h1>
+    <div class="bm-status" id="bm-status"></div>
   </div>
 
-  <div class="bm-card">
-    <h2>Salaire et objectif</h2>
-    <div class="bm-field">
-      <label for="bm-salaire">Salaire perçu (€)</label>
-      <input type="number" id="bm-salaire" placeholder="ex : 2000" />
-    </div>
-    <div class="bm-field">
-      <label for="bm-objectif">Objectif d’épargne (€)</label>
-      <input type="number" id="bm-objectif" placeholder="ex : 300" />
-    </div>
-    <div class="bm-field">
-      <label for="bm-solde">Solde bancaire actuel (€) — facultatif</label>
-      <input type="number" id="bm-solde" placeholder="ex : 538" />
-    </div>
-    <div class="bm-field">
-      <label for="bm-fixrest">Charges fixes pas encore prélevées (€)</label>
-      <input type="number" id="bm-fixrest" placeholder="0" />
-    </div>
-  </div>
-
+  <section class="bm-tab active" data-tab="accueil">
   <div class="bm-total-card">
     <div class="bm-total-label">Épargne possible ce mois-ci</div>
     <div class="bm-total-value" id="bm-total-value">0,00 €</div>
@@ -166,6 +159,9 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <div class="bm-alert" id="bm-alert"></div>
   </div>
 
+  </section>
+
+  <section class="bm-tab" data-tab="depenses">
   <div class="bm-card" id="bm-cat-fixe">
     <div class="bm-category-title"><span>Dépenses fixes</span><span class="bm-category-total" data-cat-total="fixe">—</span></div>
     <div class="bm-items" data-cat="fixe"></div>
@@ -178,6 +174,32 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <button class="bm-add-btn" data-add-cat="quotidien">+ Ajouter une dépense</button>
   </div>
 
+  </section>
+
+  <section class="bm-tab" data-tab="salaire">
+  <div class="bm-card">
+    <h2>Salaire et objectif</h2>
+    <div class="bm-field">
+      <label for="bm-salaire">Salaire perçu (€)</label>
+      <input type="number" id="bm-salaire" placeholder="ex : 2000" />
+    </div>
+    <div class="bm-field">
+      <label for="bm-objectif">Objectif d’épargne (€)</label>
+      <input type="number" id="bm-objectif" placeholder="ex : 300" />
+    </div>
+    <div class="bm-field">
+      <label for="bm-solde">Solde bancaire actuel (€) — facultatif</label>
+      <input type="number" id="bm-solde" placeholder="ex : 538" />
+    </div>
+    <div class="bm-field">
+      <label for="bm-fixrest">Charges fixes pas encore prélevées (€)</label>
+      <input type="number" id="bm-fixrest" placeholder="0" />
+    </div>
+  </div>
+
+  </section>
+
+  <section class="bm-tab" data-tab="bilan">
   <div class="bm-card">
     <h2>Où va l’argent</h2>
     <div id="bm-chart"></div>
@@ -189,8 +211,18 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <button class="bm-add-btn" id="bm-close-btn">Clôturer le mois en cours</button>
   </div>
 
-  <div class="bm-status" id="bm-status"></div>
   <div class="bm-reset"><button id="bm-reset-btn">Réinitialiser avec mes charges actuelles</button></div>
+
+  </section>
+
+  <nav class="bm-nav" id="bm-nav">
+    <div class="bm-nav-in">
+      <button data-tab="accueil" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Accueil</span></button>
+      <button data-tab="depenses"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg><span>Dépenses</span></button>
+      <button data-tab="salaire"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="15" r="1.2"/></svg><span>Salaire</span></button>
+      <button data-tab="bilan"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M2 20h20"/></svg><span>Bilan</span></button>
+    </div>
+  </nav>
 </div>
 
 <script>
@@ -512,11 +544,28 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     });
   }
 
+
+  function showTab(name) {
+    root.querySelectorAll('.bm-tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
+    root.querySelectorAll('.bm-nav button').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+    try { localStorage.setItem('bm-tab', name); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+
+  function initTabs() {
+    root.querySelectorAll('.bm-nav button').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab); compute(); }));
+    let saved = 'accueil';
+    try { saved = localStorage.getItem('bm-tab') || 'accueil'; } catch (e) {}
+    if (!root.querySelector('.bm-tab[data-tab="' + saved + '"]')) saved = 'accueil';
+    showTab(saved);
+  }
+
   function init() {
     load();
     renderAll();
     attachListeners();
     compute();
+    initTabs();
   }
 
   init();

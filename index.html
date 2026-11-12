@@ -100,6 +100,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 .bm-rv-grid div { flex:1; background:#F4F6F2; border-radius:8px; padding:10px 8px; text-align:center; }
 .bm-rv-grid b { display:block; font-size:15px; }
 .bm-rv-grid span { font-size:11.5px; color:var(--ink-soft); }
+.bm-rv-info { font-size:12.5px; color:var(--ink-soft); margin-top:10px; line-height:1.5; }
 .bm-alert { font-size:12.5px; color:var(--red); margin-top:10px; }
 .bm-year { font-size:12.5px; color:#B9C2BB; margin-top:2px; }
 .bm-spent-row input { width:68px; text-align:right; border:1px solid var(--line); border-radius:5px; padding:4px 6px; font-size:13px; background:#FBFCFA; color:var(--ink); font-family:'Inter',sans-serif; }
@@ -128,6 +129,14 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       <label for="bm-objectif">Objectif d’épargne (€)</label>
       <input type="number" id="bm-objectif" placeholder="ex : 300" />
     </div>
+    <div class="bm-field">
+      <label for="bm-solde">Solde bancaire actuel (€) — facultatif</label>
+      <input type="number" id="bm-solde" placeholder="ex : 538" />
+    </div>
+    <div class="bm-field">
+      <label for="bm-fixrest">Charges fixes pas encore prélevées (€)</label>
+      <input type="number" id="bm-fixrest" placeholder="0" />
+    </div>
   </div>
 
   <div class="bm-total-card">
@@ -147,12 +156,13 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 
   <div class="bm-card">
     <h2>Reste à vivre</h2>
-    <div class="bm-rv-main"><span id="bm-rv-total">—</span><small>disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits</small></div>
+    <div class="bm-rv-main"><span id="bm-rv-total">—</span><small id="bm-rv-sub">disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits</small></div>
     <div class="bm-rv-grid">
       <div><b id="bm-rv-week">—</b><span>par semaine</span></div>
       <div><b id="bm-rv-day">—</b><span>par jour</span></div>
       <div><b id="bm-rv-days">—</b><span>restants</span></div>
     </div>
+    <div class="bm-rv-info" id="bm-rv-info"></div>
     <div class="bm-alert" id="bm-alert"></div>
   </div>
 
@@ -190,6 +200,8 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   const DEFAULTS = {
     salaire: 2000,
     objectif: 0,
+    solde: '',
+    fixesRestantes: '',
     history: [],
     categories: {
       fixe: [
@@ -233,13 +245,15 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   function load() {
     try {
       const s = localStorage.getItem('bm-state');
-      if (s) state = Object.assign({ objectif: 0, history: [] }, JSON.parse(s));
+      if (s) state = Object.assign({ objectif: 0, solde: '', fixesRestantes: '', history: [] }, JSON.parse(s));
     } catch (e) { /* pas de données sauvegardées */ }
   }
 
   function renderSalaire() {
     root.querySelector('#bm-salaire').value = state.salaire;
     root.querySelector('#bm-objectif').value = state.objectif || '';
+    root.querySelector('#bm-solde').value = state.solde;
+    root.querySelector('#bm-fixrest').value = state.fixesRestantes;
   }
 
   function renderItems(cat) {
@@ -329,7 +343,23 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     const now = new Date();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const daysLeft = daysInMonth - now.getDate() + 1;
-    const dispo = salaire - totalFixe - objectif - spentTotal;
+    const hasSolde = String(state.solde).trim() !== '';
+    const solde = parseFloat(state.solde) || 0, fixRest = parseFloat(state.fixesRestantes) || 0;
+    const restBudget = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(0, (parseFloat(i.amount) || 0) - (parseFloat(i.spent) || 0)) : sum, 0);
+    const dispo = hasSolde ? solde - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
+    root.querySelector('#bm-rv-sub').textContent = hasSolde
+      ? 'disponible d’ici la fin du mois d’après ton solde bancaire, objectif d’épargne et charges fixes restantes déduits'
+      : 'disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits';
+    const info = root.querySelector('#bm-rv-info');
+    if (hasSolde) {
+      const ecart = solde - (salaire - (totalFixe - fixRest) - spentTotal);
+      const l1 = ecart < -0.5 ? 'Il manque ' + fmtEUR(-ecart) + ' par rapport à tes dépenses saisies : des dépenses n’ont pas été notées.'
+        : ecart > 0.5 ? 'Tu as ' + fmtEUR(ecart) + ' de plus que prévu d’après tes dépenses saisies.'
+        : 'Ton solde correspond à tes dépenses saisies.';
+      info.textContent = l1 + ' Si tu dépenses le reste du budget quotidien (' + fmtEUR(restBudget) + '), il te restera ' + fmtEUR(solde - fixRest - restBudget) + ' en fin de mois.';
+    } else {
+      info.textContent = '';
+    }
     const setRv = (id, v) => { const e = root.querySelector(id); e.textContent = fmtEUR(v); e.style.color = v < 0 ? 'var(--red)' : ''; };
     setRv('#bm-rv-total', dispo);
     setRv('#bm-rv-day', dispo / daysLeft);
@@ -393,6 +423,9 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       state.salaire = e.target.value;
       compute(); save();
     });
+
+    root.querySelector('#bm-solde').addEventListener('input', (e) => { state.solde = e.target.value; compute(); save(); });
+    root.querySelector('#bm-fixrest').addEventListener('input', (e) => { state.fixesRestantes = e.target.value; compute(); save(); });
 
     root.querySelector('#bm-objectif').addEventListener('input', (e) => {
       state.objectif = e.target.value;

@@ -6,11 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Budget">
+<meta name="apple-mobile-web-app-title" content="Easy Budget">
 <meta name="theme-color" content="#1C2620">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Budget mensuel</title>
+<title>Easy Budget</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -120,15 +120,59 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 .bm-nav button svg { width:23px; height:23px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .bm-nav button.active { color:#E3B96B; }
 .bm-nav button.active::before { content:''; position:absolute; top:0; left:30%; right:30%; height:2px; background:#E3B96B; border-radius:0 0 2px 2px; }
+.bm-header { display:flex; align-items:center; gap:12px; }
+.bm-header-txt { flex:1; min-width:0; }
+.bm-logo-sm { width:46px; height:46px; flex-shrink:0; border-radius:11px; box-shadow:0 4px 14px rgba(14,35,71,.35); }
+.bm-lock-btn { display:none; width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:#fff; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); flex-shrink:0; }
+.bm-lock-btn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.bm-sec-txt { font-size:13px; color:var(--ink-soft); margin:0 0 12px; }
+.bm-sec-btn { display:block; width:100%; margin-bottom:8px; padding:11px; border:1px solid var(--line); background:#FBFCFA; border-radius:8px; font-size:14px; color:var(--ink); cursor:pointer; font-family:'Inter',sans-serif; }
+.bm-sec-btn.primary { background:var(--ink); color:#F4F6F2; border-color:var(--ink); }
+.bm-sec-btn.danger { color:var(--red); }
+.bm-lock { display:none; position:fixed; inset:0; z-index:100; background:radial-gradient(120% 90% at 50% 0%,#1D467F 0%,#0E2347 55%,#060D20 100%); color:#F4F6F2; align-items:center; justify-content:center; padding:24px; }
+.bm-lock.show { display:flex; }
+.bm-lock-in { width:100%; max-width:320px; text-align:center; }
+.bm-lock-logo { width:76px; height:76px; border-radius:18px; box-shadow:0 10px 30px rgba(0,0,0,.45); margin-bottom:14px; }
+.bm-lock-title { font-family:'Fraunces',serif; font-size:26px; font-weight:600; }
+.bm-lock-sub { font-size:13.5px; color:#B9C2BB; margin:6px 0 20px; min-height:20px; }
+.bm-dots { display:flex; justify-content:center; gap:16px; margin-bottom:8px; }
+.bm-dots i { width:14px; height:14px; border-radius:50%; border:1.5px solid #E3B96B; transition:background .15s; }
+.bm-dots i.on { background:#E3B96B; }
+.bm-dots.shake { animation:bmshake .4s; }
+@keyframes bmshake { 25% { transform:translateX(-8px); } 75% { transform:translateX(8px); } }
+.bm-lock-err { min-height:18px; font-size:12.5px; color:#F0A08F; margin-bottom:10px; }
+.bm-pad { display:grid; grid-template-columns:repeat(3,1fr); gap:12px 14px; }
+.bm-pad button { height:64px; border-radius:50%; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:#F4F6F2; font-size:24px; font-family:'Inter',sans-serif; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.bm-pad button:active { background:rgba(227,185,107,.25); }
+.bm-pad button.ghost { border:none; background:none; font-size:13px; color:#B9C2BB; }
+.bm-lock-link { margin-top:20px; background:none; border:none; color:#8F9C93; font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:'Inter',sans-serif; }
 </style>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="lg-bg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#1D467F"/><stop offset=".55" stop-color="#0E2347"/><stop offset="1" stop-color="#060D20"/></radialGradient>
+    <linearGradient id="lg-ring" x1=".1" y1=".1" x2=".9" y2=".95"><stop offset="0" stop-color="#FFB08A"/><stop offset=".5" stop-color="#F2596B"/><stop offset="1" stop-color="#B92E6E"/></linearGradient>
+    <linearGradient id="lg-gold" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#B9822F"/><stop offset=".5" stop-color="#F3CF82"/><stop offset="1" stop-color="#FFF0C4"/></linearGradient>
+    <symbol id="bm-logo" viewBox="0 0 1024 1024">
+      <rect width="1024" height="1024" rx="224" fill="url(#lg-bg)"/>
+      <path d="M 797.6 461.7 A 290 290 0 1 1 611.2 239.5" fill="none" stroke="url(#lg-ring)" stroke-width="72" stroke-linecap="round"/>
+      <path d="M 345 580 L 455 690 L 671 390" fill="none" stroke="url(#lg-gold)" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="752,280 737,435 610,345" fill="url(#lg-gold)" stroke="url(#lg-gold)" stroke-width="24" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
 <div class="bm-root" id="bm-root">
   <div class="bm-header">
-    <div class="bm-eyebrow">Budget personnel</div>
-    <h1 class="bm-title">Mon budget mensuel</h1>
-    <div class="bm-status" id="bm-status"></div>
+    <svg class="bm-logo-sm"><use href="#bm-logo"/></svg>
+    <div class="bm-header-txt">
+      <div class="bm-eyebrow">Budget personnel</div>
+      <h1 class="bm-title">Easy Budget</h1>
+      <div class="bm-status" id="bm-status"></div>
+    </div>
+    <button class="bm-lock-btn" id="bm-lock-btn" aria-label="Verrouiller"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
   </div>
 
   <section class="bm-tab active" data-tab="accueil">
@@ -197,6 +241,11 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     </div>
   </div>
 
+    <div class="bm-card">
+      <h2>Sécurité</h2>
+      <p class="bm-sec-txt" id="bm-sec-txt"></p>
+      <div id="bm-sec-btns"></div>
+    </div>
   </section>
 
   <section class="bm-tab" data-tab="bilan">
@@ -223,6 +272,25 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       <button data-tab="bilan"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M2 20h20"/></svg><span>Bilan</span></button>
     </div>
   </nav>
+
+  <div class="bm-lock" id="bm-lock">
+    <div class="bm-lock-in">
+      <svg class="bm-lock-logo"><use href="#bm-logo"/></svg>
+      <div class="bm-lock-title">Easy Budget</div>
+      <div class="bm-lock-sub" id="bm-lock-sub"></div>
+      <div class="bm-dots" id="bm-dots"><i></i><i></i><i></i><i></i></div>
+      <div class="bm-lock-err" id="bm-lock-err"></div>
+      <div class="bm-pad" id="bm-pad">
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button class="ghost" id="bm-pad-cancel" data-act="cancel">Annuler</button>
+        <button data-k="0">0</button>
+        <button class="ghost" data-act="del" aria-label="Effacer">⌫</button>
+      </div>
+      <button class="bm-lock-link" id="bm-lock-forgot">Code oublié ?</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -560,12 +628,122 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     showTab(saved);
   }
 
+
+  const PIN_KEY = 'bm-pin';
+  let lockSt = { mode: 'unlock', buf: '', first: '', then: null, fails: 0, until: 0 };
+  let hiddenAt = 0;
+
+  function pinStored() { try { return localStorage.getItem(PIN_KEY); } catch (e) { return null; } }
+
+  async function hashPin(pin) {
+    const txt = 'easybudget:' + pin;
+    if (window.crypto && crypto.subtle) {
+      const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+      return Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, '0')).join('');
+    }
+    let h = 5381; for (const c of txt) h = ((h << 5) + h + c.charCodeAt(0)) | 0;
+    return 'x' + h;
+  }
+
+  function lockTexts() {
+    const m = lockSt.mode;
+    root.querySelector('#bm-lock-sub').textContent = m === 'unlock' ? 'Entre ton code' : m === 'verify' ? 'Entre ton code actuel' : m === 'set1' ? 'Choisis un code à 4 chiffres' : 'Confirme ton code';
+    root.querySelector('#bm-pad-cancel').style.visibility = m === 'unlock' ? 'hidden' : 'visible';
+    root.querySelector('#bm-lock-forgot').style.display = (m === 'unlock' || m === 'verify') ? '' : 'none';
+    root.querySelectorAll('#bm-dots i').forEach((d, i) => d.classList.toggle('on', i < lockSt.buf.length));
+  }
+  function openLock(mode, then) {
+    lockSt.mode = mode; lockSt.buf = ''; lockSt.then = then || null;
+    root.querySelector('#bm-lock-err').textContent = '';
+    lockTexts();
+    root.querySelector('#bm-lock').classList.add('show');
+  }
+  function closeLock() { root.querySelector('#bm-lock').classList.remove('show'); lockSt.buf = ''; }
+  function lockError(msg) {
+    const dots = root.querySelector('#bm-dots');
+    root.querySelector('#bm-lock-err').textContent = msg;
+    dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake');
+    lockSt.buf = ''; lockTexts();
+  }
+  async function lockProcess() {
+    const code = lockSt.buf, m = lockSt.mode;
+    if (m === 'unlock' || m === 'verify') {
+      if ((await hashPin(code)) === pinStored()) {
+        lockSt.fails = 0;
+        const then = lockSt.then; closeLock();
+        if (then) then();
+      } else {
+        lockSt.fails++;
+        if (lockSt.fails >= 5) { lockSt.until = Date.now() + 30000; lockSt.fails = 0; lockError('Trop d’essais. Réessaie dans 30 secondes.'); }
+        else lockError('Code incorrect');
+      }
+    } else if (m === 'set1') {
+      lockSt.first = code; lockSt.mode = 'set2'; lockSt.buf = '';
+      root.querySelector('#bm-lock-err').textContent = ''; lockTexts();
+    } else if (code === lockSt.first) {
+      try { localStorage.setItem(PIN_KEY, await hashPin(code)); } catch (e) {}
+      closeLock(); renderSecurity(); setStatus('Code activé');
+    } else {
+      lockSt.mode = 'set1'; lockSt.first = ''; lockError('Les codes ne correspondent pas');
+    }
+  }
+  function lockDigit(d) {
+    if (Date.now() < lockSt.until) {
+      root.querySelector('#bm-lock-err').textContent = 'Trop d’essais. Réessaie dans ' + Math.ceil((lockSt.until - Date.now()) / 1000) + ' s';
+      return;
+    }
+    if (lockSt.buf.length >= 4) return;
+    lockSt.buf += d; lockTexts();
+    if (lockSt.buf.length === 4) setTimeout(lockProcess, 120);
+  }
+
+  function renderSecurity() {
+    const has = !!pinStored();
+    root.querySelector('#bm-sec-txt').textContent = has
+      ? 'Code activé. L’appli se verrouille quand tu la quittes plus de 30 secondes.'
+      : 'Protège l’accès à tes données avec un code à 4 chiffres.';
+    root.querySelector('#bm-sec-btns').innerHTML = has
+      ? '<button class="bm-sec-btn" data-sec="lock">Verrouiller maintenant</button><button class="bm-sec-btn" data-sec="change">Changer le code</button><button class="bm-sec-btn danger" data-sec="off">Désactiver le code</button>'
+      : '<button class="bm-sec-btn primary" data-sec="on">Activer un code</button>';
+    root.querySelector('#bm-lock-btn').style.display = has ? 'flex' : 'none';
+  }
+
+  function initSecurity() {
+    renderSecurity();
+    root.querySelector('#bm-sec-btns').addEventListener('click', (e) => {
+      const a = e.target.dataset && e.target.dataset.sec;
+      if (a === 'on') openLock('set1');
+      else if (a === 'lock') openLock('unlock');
+      else if (a === 'change') openLock('verify', () => openLock('set1'));
+      else if (a === 'off') openLock('verify', () => { try { localStorage.removeItem(PIN_KEY); } catch (er) {} renderSecurity(); setStatus('Code désactivé'); });
+    });
+    root.querySelector('#bm-lock-btn').addEventListener('click', () => openLock('unlock'));
+    root.querySelector('#bm-pad').addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.k !== undefined) lockDigit(b.dataset.k);
+      else if (b.dataset.act === 'del') { lockSt.buf = lockSt.buf.slice(0, -1); lockTexts(); }
+      else if (b.dataset.act === 'cancel') closeLock();
+    });
+    root.querySelector('#bm-lock-forgot').addEventListener('click', () => {
+      if (confirm('Pour réinitialiser le code, toutes les données de l’appli seront effacées de cet appareil. Continuer ?')) {
+        try { ['bm-state', PIN_KEY, 'bm-tab'].forEach((k) => localStorage.removeItem(k)); } catch (er) {}
+        location.reload();
+      }
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { hiddenAt = Date.now(); }
+      else if (pinStored() && hiddenAt && Date.now() - hiddenAt > 30000 && !root.querySelector('#bm-lock').classList.contains('show')) openLock('unlock');
+    });
+    if (pinStored()) openLock('unlock');
+  }
+
   function init() {
     load();
     renderAll();
     attachListeners();
     compute();
     initTabs();
+    initSecurity();
   }
 
   init();

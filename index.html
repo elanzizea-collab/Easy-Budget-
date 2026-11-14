@@ -566,17 +566,19 @@ html, body { background:#EEF2F6; }
     const auto = fixesRestantesAuto();
     const solde = parseFloat(state.solde) || 0, fixRest = auto !== null ? auto : (parseFloat(state.fixesRestantes) || 0);
     const restBudget = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(0, (parseFloat(i.amount) || 0) - (parseFloat(i.spent) || 0)) : sum, 0);
-    const dispo = hasSolde ? solde - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
+    const okIds = state.categories.quotidien.filter((i) => i.checked).map((i) => i.id), mkNow = todayStr().slice(0, 7);
+    const spentAfter = hasSolde ? state.journal.reduce((a, j) => (okIds.indexOf(j.line) >= 0 && String(j.date).slice(0, 7) === mkNow && (j.ts || 0) > (state.soldeTs || 0)) ? a + (parseFloat(j.amount) || 0) : a, 0) : 0;
+    const dispo = hasSolde ? solde - spentAfter - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
     root.querySelector('#bm-rv-sub').textContent = hasSolde
-      ? 'disponible d’ici la fin du mois d’après ton solde bancaire, objectif d’épargne et charges fixes restantes déduits'
+      ? 'disponible d’ici la fin du mois d’après ton solde bancaire, dépenses saisies depuis, objectif d’épargne et charges fixes restantes déduits'
       : 'disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits';
     const info = root.querySelector('#bm-rv-info');
     if (hasSolde) {
-      const ecart = solde - (salaire - (totalFixe - fixRest) - spentTotal);
+      const ecart = solde - (salaire - (totalFixe - fixRest) - (spentTotal - spentAfter));
       const l1 = ecart < -0.5 ? 'Il manque ' + fmtEUR(-ecart) + ' par rapport à tes dépenses saisies : des dépenses n’ont pas été notées.'
         : ecart > 0.5 ? 'Tu as ' + fmtEUR(ecart) + ' de plus que prévu d’après tes dépenses saisies.'
         : 'Ton solde correspond à tes dépenses saisies.';
-      info.textContent = l1 + ' Si tu dépenses le reste du budget quotidien (' + fmtEUR(restBudget) + '), il te restera ' + fmtEUR(solde - fixRest - restBudget) + ' en fin de mois.';
+      info.textContent = l1 + ' Si tu dépenses le reste du budget quotidien (' + fmtEUR(restBudget) + '), il te restera ' + fmtEUR(solde - spentAfter - fixRest - restBudget) + ' en fin de mois.';
     } else {
       info.textContent = '';
     }
@@ -587,7 +589,7 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-rv-days').textContent = daysLeft + (daysLeft > 1 ? ' jours' : ' jour');
     root.querySelector('#bm-alert').textContent = over.length ? '⚠ Budget dépassé : ' + over.join(', ') : '';
 
-    renderHero(hasSolde ? solde : salaire, hasSolde);
+    renderHero(hasSolde ? solde - spentAfter : salaire, hasSolde);
     renderRepartition(epargne);
     renderUpcoming();
     renderChart();
@@ -647,7 +649,7 @@ html, body { background:#EEF2F6; }
       compute(); save();
     });
 
-    root.querySelector('#bm-solde').addEventListener('input', (e) => { state.solde = e.target.value; compute(); save(); });
+    root.querySelector('#bm-solde').addEventListener('input', (e) => { state.solde = e.target.value; state.soldeTs = Date.now(); compute(); save(); });
     root.querySelector('#bm-decouvert').addEventListener('input', (e) => { state.decouvert = e.target.value; compute(); save(); });
     root.querySelector('#bm-fixrest').addEventListener('input', (e) => { state.fixesRestantes = e.target.value; compute(); save(); });
 
@@ -1051,7 +1053,7 @@ html, body { background:#EEF2F6; }
   function saveExpense() {
     const v = parseFloat(String(root.querySelector('#bm-x-amount').value).replace(',', '.'));
     if (!(v > 0)) { root.querySelector('#bm-x-amount').focus(); return; }
-    state.journal.push({ id: newId(), date: root.querySelector('#bm-x-date').value || todayStr(), amount: Math.round(v * 100) / 100, line: xLine, note: root.querySelector('#bm-x-note').value.trim() });
+    state.journal.push({ id: newId(), ts: Date.now(), date: root.querySelector('#bm-x-date').value || todayStr(), amount: Math.round(v * 100) / 100, line: xLine, note: root.querySelector('#bm-x-note').value.trim() });
     closeExpense(); renderJournal(); compute(); save();
   }
 

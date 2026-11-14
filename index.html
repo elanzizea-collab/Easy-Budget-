@@ -242,6 +242,13 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   </div>
 
     <div class="bm-card">
+      <h2>Calculateur de primes</h2>
+      <p class="bm-sec-txt">Récupère ton salaire final estimé depuis ton calculateur de primes (salaire de base + commissions + prime PEM-GEM).</p>
+      <button class="bm-sec-btn primary" id="bm-import-primes">Importer mon salaire final</button>
+      <div class="bm-sec-txt" id="bm-import-msg"></div>
+    </div>
+
+    <div class="bm-card">
       <h2>Sécurité</h2>
       <p class="bm-sec-txt" id="bm-sec-txt"></p>
       <div id="bm-sec-btns"></div>
@@ -259,6 +266,15 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <div id="bm-history"></div>
     <button class="bm-add-btn" id="bm-close-btn">Clôturer le mois en cours</button>
   </div>
+
+    <div class="bm-card">
+      <h2>Sauvegarde et partage</h2>
+      <p class="bm-sec-txt">Ton budget est stocké uniquement sur ce téléphone. Fais une sauvegarde de temps en temps.</p>
+      <button class="bm-sec-btn primary" id="bm-export">Exporter mes données</button>
+      <button class="bm-sec-btn" id="bm-import-btn">Restaurer depuis un fichier</button>
+      <input type="file" id="bm-file" accept=".json,application/json" style="display:none">
+      <button class="bm-sec-btn" id="bm-wa">Envoyer le récapitulatif sur WhatsApp</button>
+    </div>
 
   <div class="bm-reset"><button id="bm-reset-btn">Réinitialiser avec mes charges actuelles</button></div>
 
@@ -737,6 +753,84 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     if (pinStored()) openLock('unlock');
   }
 
+
+  const PRIMES_DEFAULT = {
+    marge: [[22000, 0.5], [23000, 0.6], [24000, 0.7], [25000, 0.8], [26000, 0.9], [27000, 1.0], [28000, 1.1], [30000, 1.2]],
+    coeff: [[0, 1.1], [200000, 1.2]],
+    pemgem: [[0, -50], [5000, 25], [6000, 50], [7000, 100], [8000, 100]]
+  };
+  function bracketOf(list, v) {
+    let r = null;
+    [...list].sort((a, b) => a[0] - b[0]).forEach((x) => { if (v >= x[0]) r = x; });
+    return r;
+  }
+
+  function importPrimes() {
+    const msg = root.querySelector('#bm-import-msg');
+    let sa = null, gr = null;
+    try { sa = JSON.parse(localStorage.getItem('cp-saisie')); gr = JSON.parse(localStorage.getItem('cp-grilles-v2')); } catch (e) {}
+    if (!sa || (sa.marge === '' && sa.caMagasin === '' && sa.pemgem === '')) {
+      msg.textContent = 'Aucune donnée trouvée. Ouvre ton calculateur de primes dans Chrome, saisis tes chiffres du mois, puis reviens ici.';
+      return;
+    }
+    const conv = (a) => a.map((x) => [x.seuil, x.valeur]);
+    const G = (gr && gr.marge && gr.coeff && gr.pemgem) ? { marge: conv(gr.marge), coeff: conv(gr.coeff), pemgem: conv(gr.pemgem) } : PRIMES_DEFAULT;
+    const marge = parseFloat(sa.marge) || 0, ca = parseFloat(sa.caMagasin) || 0, pem = parseFloat(sa.pemgem) || 0, base = parseFloat(sa.base) || 0;
+    const bm = bracketOf(G.marge, marge), bc = bracketOf(G.coeff, ca), bp = bracketOf(G.pemgem, pem);
+    const totalMarge = (bm ? marge * bm[1] / 100 : 0) * (bc ? bc[1] : 1);
+    const prime = bp ? bp[1] : 0;
+    const final = Math.round((base + totalMarge + prime) * 100) / 100;
+    if (confirm('Salaire de base ' + fmtEUR(base) + ' + commissions ' + fmtEUR(totalMarge) + ' + prime PEM-GEM ' + fmtEUR(prime) + ' = ' + fmtEUR(final) + '.\n\nUtiliser ce montant comme salaire perçu ?')) {
+      state.salaire = final; renderSalaire(); compute(); save();
+      msg.textContent = 'Salaire mis à jour : ' + fmtEUR(final) + (sa.periode ? ' (période « ' + sa.periode + ' »).' : '.');
+    }
+  }
+
+  function exportData() {
+    const data = { app: 'easy-budget', version: 1, date: new Date().toISOString(), state: state };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    a.download = 'easy-budget-sauvegarde-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setStatus('Sauvegarde exportée');
+  }
+
+  function importFile(file) {
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const st = JSON.parse(r.result).state;
+        if (!st || !st.categories || !st.categories.fixe || !st.categories.quotidien) throw new Error('format');
+        if (confirm('Remplacer toutes tes données actuelles par cette sauvegarde ?')) {
+          localStorage.setItem('bm-state', JSON.stringify(st));
+          location.reload();
+        }
+      } catch (e) { alert('Fichier invalide : ce n’est pas une sauvegarde Easy Budget.'); }
+    };
+    r.readAsText(file);
+  }
+
+  function shareWhatsApp() {
+    const sal = parseFloat(state.salaire) || 0, fixe = categoryTotal('fixe'), bud = categoryTotal('quotidien');
+    const q = state.categories.quotidien.filter((i) => i.checked);
+    const spent = q.reduce((a, i) => a + (parseFloat(i.spent) || 0), 0);
+    const eff = q.reduce((a, i) => a + Math.max(parseFloat(i.amount) || 0, parseFloat(i.spent) || 0), 0);
+    const lines = ['Easy Budget — récapitulatif', 'Salaire : ' + fmtEUR(sal), 'Charges fixes : ' + fmtEUR(fixe),
+      'Dépenses quotidiennes : ' + fmtEUR(spent) + ' / ' + fmtEUR(bud) + ' prévus', 'Épargne possible : ' + fmtEUR(sal - fixe - eff)];
+    if (parseFloat(state.objectif) > 0) lines.push('Objectif d’épargne : ' + fmtEUR(parseFloat(state.objectif)));
+    window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  }
+
+  function initExtras() {
+    root.querySelector('#bm-import-primes').addEventListener('click', importPrimes);
+    root.querySelector('#bm-export').addEventListener('click', exportData);
+    root.querySelector('#bm-import-btn').addEventListener('click', () => root.querySelector('#bm-file').click());
+    root.querySelector('#bm-file').addEventListener('change', (e) => { importFile(e.target.files[0]); e.target.value = ''; });
+    root.querySelector('#bm-wa').addEventListener('click', shareWhatsApp);
+  }
+
   function init() {
     load();
     renderAll();
@@ -744,6 +838,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     compute();
     initTabs();
     initSecurity();
+    initExtras();
   }
 
   init();

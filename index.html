@@ -147,6 +147,58 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 .bm-pad button:active { background:rgba(227,185,107,.25); }
 .bm-pad button.ghost { border:none; background:none; font-size:13px; color:#B9C2BB; }
 .bm-lock-link { margin-top:20px; background:none; border:none; color:#8F9C93; font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:'Inter',sans-serif; }
+html, body { background:#EEF2F6; }
+.bm-root { background:linear-gradient(180deg,#E3EAF3 0,#EFF3F8 260px); }
+.bm-card { border:none; border-radius:20px; box-shadow:0 6px 22px rgba(30,50,90,.07); padding:20px; }
+.bm-card h2 { font-size:15px; }
+.bm-total-card { background:linear-gradient(160deg,#16305C,#0B1B38); border-radius:22px; box-shadow:0 14px 30px rgba(11,27,56,.28); }
+.bm-header { display:grid; grid-template-columns:46px 1fr 38px; align-items:center; gap:10px; }
+.bm-header-txt { text-align:center; }
+.bm-hero-amt { font-family:'Fraunces',serif; font-size:34px; font-weight:600; line-height:1.1; }
+.bm-hero-lbl { font-size:11px; letter-spacing:.06em; color:var(--ink-soft); text-transform:uppercase; margin-top:2px; }
+.bm-header .bm-status { text-align:center; min-height:12px; }
+.bm-nav { background:rgba(255,255,255,.94); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-top:1px solid #E1E7EF; }
+.bm-nav button { color:#7C8CA5; }
+.bm-nav button.active { color:#1D467F; }
+.bm-nav button.active::before { background:#C9954A; }
+.bm-nav .bm-fab { flex:0 0 58px; width:58px; height:58px; margin:-22px 6px 0; padding:0; border-radius:50%; background:linear-gradient(135deg,#F3CF82,#C9954A); color:#0B1B38; font-size:32px; font-weight:300; line-height:1; box-shadow:0 8px 20px rgba(201,149,74,.5); display:flex; align-items:center; justify-content:center; }
+.bm-pills { display:flex; gap:4px; background:#fff; border-radius:999px; padding:5px; box-shadow:0 4px 16px rgba(30,50,90,.07); margin-bottom:14px; }
+.bm-pills button { flex:1; border:none; background:none; padding:9px 4px; border-radius:999px; font-size:12.5px; color:#6B7A93; font-family:'Inter',sans-serif; cursor:pointer; white-space:nowrap; }
+.bm-pills button.active { background:#1D467F; color:#fff; }
+.bm-type { border:none; border-radius:999px; padding:4px 10px; font-size:11.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+.bm-sp-txt { font-size:12.5px; color:var(--ink-soft); }
+.bm-day { width:46px !important; text-align:center; border:1px solid var(--line) !important; border-radius:6px; padding:3px !important; }
+.bm-donut-wrap { display:flex; align-items:center; gap:16px; }
+#bm-donut { width:120px; height:120px; flex-shrink:0; }
+#bm-legend { flex:1; }
+.bm-lg-row { display:flex; align-items:center; gap:8px; font-size:13px; padding:5px 0; }
+.bm-lg-row i { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.bm-lg-row span { flex:1; }
+.bm-lg-row small { color:var(--ink-soft); width:34px; text-align:right; }
+.bm-up-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #EEF1F5; font-size:14px; }
+.bm-up-day { width:34px; height:34px; border-radius:10px; background:#EAF0F8; color:#1D467F; font-weight:600; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.bm-up-lbl { flex:1; min-width:0; }
+.bm-search { width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; margin-bottom:6px; background:#F6F8FB; font-family:'Inter',sans-serif; }
+.bm-j-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #EEF1F5; }
+.bm-j-date { width:42px; font-size:12px; color:var(--ink-soft); }
+.bm-j-main { flex:1; min-width:0; font-size:14px; }
+.bm-j-main small { display:block; color:var(--ink-soft); font-size:12px; }
+.bm-sheet { display:none; position:fixed; inset:0; z-index:90; background:rgba(8,18,40,.5); align-items:flex-end; justify-content:center; }
+.bm-sheet.show { display:flex; }
+.bm-sheet-in { background:#fff; width:100%; max-width:640px; border-radius:24px 24px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px)); animation:bmup .25s ease; }
+@keyframes bmup { from { transform:translateY(40px); opacity:.6; } to { transform:none; opacity:1; } }
+.bm-sheet-in h3 { font-family:'Fraunces',serif; font-size:17px; margin:0; text-align:center; }
+.bm-x-big { width:100%; border:none; font-family:'Fraunces',serif; font-size:42px; font-weight:600; text-align:center; padding:12px 0 4px; outline:none; color:var(--ink); background:none; }
+.bm-chips { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px; justify-content:center; }
+.bm-chip { padding:8px 13px; border-radius:999px; border:1px solid var(--line); background:#F6F8FB; font-size:13px; font-family:'Inter',sans-serif; cursor:pointer; color:var(--ink); }
+.bm-chip.on { background:#1D467F; color:#fff; border-color:#1D467F; }
+.bm-x-row { display:flex; gap:8px; margin-bottom:14px; }
+.bm-x-row input { flex:1; min-width:0; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; background:#F6F8FB; }
+.bm-x-row input[type=date] { flex:0 0 150px; }
+.bm-x-actions { display:flex; gap:8px; }
+.bm-x-actions .bm-sec-btn { margin:0; }
+.bm-spent-row { justify-content:flex-start; gap:8px; }
+.bm-plus { margin-left:auto; }
 </style>
 </head>
 <body>
@@ -169,8 +221,8 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   <div class="bm-header">
     <svg class="bm-logo-sm"><use href="#bm-logo"/></svg>
     <div class="bm-header-txt">
-      <div class="bm-eyebrow">Budget personnel</div>
-      <h1 class="bm-title">Easy Budget</h1>
+      <div class="bm-hero-amt" id="bm-hero-amt">—</div>
+      <div class="bm-hero-lbl" id="bm-hero-lbl"></div>
       <div class="bm-status" id="bm-status"></div>
     </div>
     <button class="bm-lock-btn" id="bm-lock-btn" aria-label="Verrouiller"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
@@ -206,9 +258,20 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <div class="bm-alert" id="bm-alert"></div>
   </div>
 
+    <div class="bm-card">
+      <h2>Répartition</h2>
+      <div class="bm-donut-wrap"><svg id="bm-donut" viewBox="0 0 120 120"></svg><div id="bm-legend"></div></div>
+      <p class="bm-sec-txt" style="margin:12px 0 0">Touche l’étiquette d’une dépense (onglet Dépenses) pour changer sa catégorie.</p>
+    </div>
+
+    <div class="bm-card">
+      <h2>Prochains prélèvements</h2>
+      <div id="bm-upcoming"></div>
+    </div>
   </section>
 
   <section class="bm-tab" data-tab="depenses">
+    <div class="bm-pills" id="bm-pills"><button data-f="all" class="active">Tout</button><button data-f="fixe">Fixes</button><button data-f="quotidien">Quotidiennes</button><button data-f="journal">Journal</button></div>
   <div class="bm-card" id="bm-cat-fixe">
     <div class="bm-category-title"><span>Dépenses fixes</span><span class="bm-category-total" data-cat-total="fixe">—</span></div>
     <div class="bm-items" data-cat="fixe"></div>
@@ -221,6 +284,11 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <button class="bm-add-btn" data-add-cat="quotidien">+ Ajouter une dépense</button>
   </div>
 
+    <div class="bm-card" id="bm-card-journal">
+      <div class="bm-category-title"><span>Journal du mois</span><span class="bm-category-total" id="bm-journal-total">—</span></div>
+      <input type="text" id="bm-j-search" class="bm-search" placeholder="Rechercher une dépense…">
+      <div id="bm-journal"></div>
+    </div>
   </section>
 
   <section class="bm-tab" data-tab="salaire">
@@ -244,7 +312,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       <input type="number" id="bm-solde" placeholder="ex : 538" />
     </div>
     <div class="bm-field">
-      <label for="bm-fixrest">Charges fixes pas encore prélevées (€)</label>
+      <label for="bm-fixrest">Charges fixes pas encore prélevées (€) — automatique si tu renseignes les jours de prélèvement</label>
       <input type="number" id="bm-fixrest" placeholder="0" />
     </div>
   </div>
@@ -292,10 +360,21 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     <div class="bm-nav-in">
       <button data-tab="accueil" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Accueil</span></button>
       <button data-tab="depenses"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg><span>Dépenses</span></button>
+      <button class="bm-fab" id="bm-fab" aria-label="Ajouter une dépense">+</button>
       <button data-tab="salaire"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="15" r="1.2"/></svg><span>Salaire</span></button>
       <button data-tab="bilan"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M2 20h20"/></svg><span>Bilan</span></button>
     </div>
   </nav>
+
+  <div class="bm-sheet" id="bm-sheet">
+    <div class="bm-sheet-in">
+      <h3>Nouvelle dépense</h3>
+      <input type="number" inputmode="decimal" step="any" id="bm-x-amount" class="bm-x-big" placeholder="0,00">
+      <div class="bm-chips" id="bm-x-lines"></div>
+      <div class="bm-x-row"><input type="date" id="bm-x-date"><input type="text" id="bm-x-note" placeholder="Note (facultatif)"></div>
+      <div class="bm-x-actions"><button class="bm-sec-btn" id="bm-x-cancel">Annuler</button><button class="bm-sec-btn primary" id="bm-x-save">Enregistrer</button></div>
+    </div>
+  </div>
 
   <div class="bm-lock" id="bm-lock">
     <div class="bm-lock-in">
@@ -394,12 +473,16 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
         '<div class="bm-amount-wrap"><input type="number" step="any" data-cat="' + cat + '" data-idx="' + idx + '" data-field="amount" value="' + item.amount + '"><span style="color:var(--ink-soft);font-size:13px;">€</span></div>' +
         '<button class="bm-del-btn" data-cat="' + cat + '" data-idx="' + idx + '" title="Supprimer">✕</button>';
       container.appendChild(row);
+      const sp = document.createElement('div');
+      sp.className = 'bm-spent-row' + (item.checked ? '' : ' unchecked');
+      const tp = TYPES[item.type] || TYPES.essentiel;
+      const chip = '<button class="bm-type" style="background:' + tp.c + '22;color:' + tp.c + '" data-typ="' + cat + '|' + idx + '">' + tp.l + '</button>';
       if (cat === 'quotidien') {
-        const sp = document.createElement('div');
-        sp.className = 'bm-spent-row' + (item.checked ? '' : ' unchecked');
-        sp.innerHTML = '<span>Dépensé</span><input type="number" step="any" placeholder="0" data-cat="' + cat + '" data-idx="' + idx + '" data-field="spent" value="' + (item.spent || '') + '"><span>€ · <b data-rest="' + idx + '"></b></span><button class="bm-plus" data-plus="' + idx + '">+ Ajouter</button><div class="bm-pbar"><i data-bar="' + idx + '"></i></div>';
-        container.appendChild(sp);
+        sp.innerHTML = chip + '<span class="bm-sp-txt"><b data-spent="' + idx + '">—</b> dépensé · <b data-rest="' + idx + '"></b></span><button class="bm-plus" data-plus="' + idx + '">+ Ajouter</button><div class="bm-pbar"><i data-bar="' + idx + '"></i></div>';
+      } else {
+        sp.innerHTML = chip + '<span class="bm-sp-txt">Prélevé le <input type="number" min="1" max="31" placeholder="—" class="bm-day" data-cat="fixe" data-idx="' + idx + '" data-field="day" value="' + (item.day || '') + '"> du mois</span>';
       }
+      container.appendChild(sp);
     });
   }
 
@@ -408,6 +491,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     renderItems('fixe');
     renderItems('quotidien');
     renderHistory();
+    renderJournal();
   }
 
   function categoryTotal(cat) {
@@ -415,6 +499,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   }
 
   function compute() {
+    syncSpent();
     const salairePercu = parseFloat(state.salaire) || 0;
     const decouvert = Math.max(0, parseFloat(state.decouvert) || 0);
     const salaire = salairePercu - decouvert;
@@ -458,6 +543,8 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       const bud = parseFloat(it.amount) || 0;
       spentTotal += sp;
       if (it.checked && sp > bud && sp > 0) over.push(it.label);
+      const se = root.querySelector('[data-spent="' + idx + '"]');
+      if (se) se.textContent = fmtEUR(parseFloat(it.spent) || 0);
       const el = root.querySelector('[data-rest="' + idx + '"]');
       if (el) {
         const r = bud - sp;
@@ -476,7 +563,8 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const daysLeft = daysInMonth - now.getDate() + 1;
     const hasSolde = String(state.solde).trim() !== '';
-    const solde = parseFloat(state.solde) || 0, fixRest = parseFloat(state.fixesRestantes) || 0;
+    const auto = fixesRestantesAuto();
+    const solde = parseFloat(state.solde) || 0, fixRest = auto !== null ? auto : (parseFloat(state.fixesRestantes) || 0);
     const restBudget = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(0, (parseFloat(i.amount) || 0) - (parseFloat(i.spent) || 0)) : sum, 0);
     const dispo = hasSolde ? solde - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
     root.querySelector('#bm-rv-sub').textContent = hasSolde
@@ -499,6 +587,9 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     root.querySelector('#bm-rv-days').textContent = daysLeft + (daysLeft > 1 ? ' jours' : ' jour');
     root.querySelector('#bm-alert').textContent = over.length ? '⚠ Budget dépassé : ' + over.join(', ') : '';
 
+    renderHero(hasSolde ? solde : salaire, hasSolde);
+    renderRepartition(epargne);
+    renderUpcoming();
     renderChart();
   }
 
@@ -588,13 +679,19 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
 
     root.addEventListener('click', (e) => {
       const t = e.target;
+      if (t.dataset && t.dataset.typ !== undefined) {
+        const pr = t.dataset.typ.split('|'), it = state.categories[pr[0]][parseInt(pr[1], 10)], order = Object.keys(TYPES);
+        it.type = order[(order.indexOf(it.type) + 1) % order.length];
+        renderItems(pr[0]); compute(); save();
+        return;
+      }
+      if (t.dataset && t.dataset.jdel !== undefined) {
+        state.journal = state.journal.filter((j) => j.id !== t.dataset.jdel);
+        renderJournal(); compute(); save();
+        return;
+      }
       if (t.dataset && t.dataset.plus !== undefined) {
-        const it = state.categories.quotidien[parseInt(t.dataset.plus, 10)];
-        const v = parseFloat(String(prompt('Montant dépensé à ajouter (€)') || '').replace(',', '.'));
-        if (v > 0) {
-          it.spent = Math.round(((parseFloat(it.spent) || 0) + v) * 100) / 100;
-          renderItems('quotidien'); compute(); save();
-        }
+        openExpense(state.categories.quotidien[parseInt(t.dataset.plus, 10)].id);
         return;
       }
       if (t.dataset && t.dataset.hdel !== undefined) {
@@ -609,7 +706,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
       }
       if (t.dataset && t.dataset.addCat) {
         const cat = t.dataset.addCat;
-        state.categories[cat].push({ label: 'Nouvelle dépense', amount: 0, checked: true });
+        state.categories[cat].push({ label: 'Nouvelle dépense', amount: 0, checked: true, id: newId(), type: cat === 'fixe' ? 'essentiel' : 'plaisir', day: '' });
         renderItems(cat); compute(); save();
       }
     });
@@ -628,18 +725,17 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
         state.history.push(entry);
       }
       renderHistory(); save();
-      if (confirm('Mois enregistré. Remettre les dépenses saisies à zéro pour le nouveau mois ?')) {
-        state.categories.quotidien.forEach(i => { i.spent = 0; });
-        renderItems('quotidien'); compute(); save();
-      }
+      setStatus('Mois enregistré');
     });
 
     root.querySelector('#bm-reset-btn').addEventListener('click', () => {
       if (confirm('Réinitialiser avec les charges actuelles par défaut ? Tes modifications seront perdues.')) {
-        const keepHistory = state.history, keepGoal = state.objectif;
+        const keepHistory = state.history, keepGoal = state.objectif, keepJournal = state.journal;
         state = JSON.parse(JSON.stringify(DEFAULTS));
         state.history = keepHistory;
         state.objectif = keepGoal;
+        state.journal = keepJournal;
+        migrate();
         renderAll(); compute(); save();
       }
     });
@@ -654,7 +750,7 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
   }
 
   function initTabs() {
-    root.querySelectorAll('.bm-nav button').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab); compute(); }));
+    root.querySelectorAll('.bm-nav button[data-tab]').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab); compute(); }));
     let saved = 'accueil';
     try { saved = localStorage.getItem('bm-tab') || 'accueil'; } catch (e) {}
     if (!root.querySelector('.bm-tab[data-tab="' + saved + '"]')) saved = 'accueil';
@@ -848,14 +944,149 @@ html, body { margin:0; padding:0; background:#EEF1EC; }
     root.querySelector('#bm-wa').addEventListener('click', shareWhatsApp);
   }
 
+
+  const TYPES = { essentiel: { l: 'Essentiel', c: '#33694A' }, plaisir: { l: 'Plaisir', c: '#C9954A' }, epargne: { l: 'Épargne', c: '#2F6FB0' }, imprevu: { l: 'Imprévu', c: '#B3462F' } };
+  function esc(t) { return String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  function newId() { return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function guessType(label) {
+    const l = String(label).toLowerCase();
+    if (/mtsango|épargne|epargne|tontine/.test(l)) return 'epargne';
+    if (/imprévu|imprevu/.test(l)) return 'imprevu';
+    if (/fast|nadj|coiff|resto|sortie|loisir/.test(l)) return 'plaisir';
+    return 'essentiel';
+  }
+  function migrate() {
+    state.journal = state.journal || [];
+    ['fixe', 'quotidien'].forEach((cat) => state.categories[cat].forEach((it) => {
+      if (!it.id) it.id = newId();
+      if (!it.type) it.type = guessType(it.label);
+      if (cat === 'fixe' && it.day === undefined) it.day = '';
+    }));
+    if (!state.v2) {
+      state.categories.quotidien.forEach((it) => {
+        const sp = parseFloat(it.spent) || 0;
+        if (sp > 0) state.journal.push({ id: newId(), date: todayStr(), amount: sp, line: it.id, note: 'Total repris avant le journal' });
+      });
+      state.v2 = true;
+    }
+  }
+  function syncSpent() {
+    const mk = todayStr().slice(0, 7);
+    state.categories.quotidien.forEach((it) => {
+      const sum = state.journal.reduce((a, j) => (j.line === it.id && String(j.date).slice(0, 7) === mk) ? a + (parseFloat(j.amount) || 0) : a, 0);
+      it.spent = Math.round(sum * 100) / 100;
+    });
+  }
+  function fixesRestantesAuto() {
+    const dated = state.categories.fixe.filter((i) => i.checked && parseInt(i.day, 10) >= 1);
+    if (!dated.length) return null;
+    const today = new Date().getDate();
+    return dated.reduce((a, i) => parseInt(i.day, 10) > today ? a + (parseFloat(i.amount) || 0) : a, 0);
+  }
+
+  function renderHero(v, hasSolde) {
+    root.querySelector('#bm-hero-amt').textContent = fmtEUR(v);
+    const m = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    root.querySelector('#bm-hero-lbl').textContent = m + ' · ' + (hasSolde ? 'solde en compte' : 'revenu net');
+  }
+
+  function renderRepartition(epargne) {
+    const sums = { essentiel: 0, plaisir: 0, epargne: 0, imprevu: 0 };
+    state.categories.fixe.forEach((i) => { if (i.checked) sums[i.type || 'essentiel'] += parseFloat(i.amount) || 0; });
+    state.categories.quotidien.forEach((i) => { if (i.checked) sums[i.type || 'essentiel'] += Math.max(parseFloat(i.amount) || 0, parseFloat(i.spent) || 0); });
+    sums.epargne += Math.max(0, epargne);
+    const total = Object.keys(sums).reduce((a, k) => a + sums[k], 0);
+    const C = 2 * Math.PI * 46;
+    let off = 0, h = '<circle cx="60" cy="60" r="46" fill="none" stroke="#E6ECF3" stroke-width="16"/>', lg = '';
+    Object.keys(TYPES).forEach((k) => {
+      if (sums[k] > 0 && total > 0) {
+        const len = sums[k] / total * C;
+        h += '<circle cx="60" cy="60" r="46" fill="none" stroke="' + TYPES[k].c + '" stroke-width="16" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 60 60)"/>';
+        off += len;
+      }
+      lg += '<div class="bm-lg-row"><i style="background:' + TYPES[k].c + '"></i><span>' + TYPES[k].l + '</span><b>' + fmtEUR(sums[k]) + '</b><small>' + (total > 0 ? Math.round(sums[k] / total * 100) : 0) + ' %</small></div>';
+    });
+    root.querySelector('#bm-donut').innerHTML = h;
+    root.querySelector('#bm-legend').innerHTML = lg;
+  }
+
+  function renderUpcoming() {
+    const box = root.querySelector('#bm-upcoming');
+    const dated = state.categories.fixe.filter((i) => i.checked && parseInt(i.day, 10) >= 1);
+    if (!dated.length) { box.innerHTML = '<div class="bm-sec-txt">Renseigne le jour de prélèvement de tes charges fixes (onglet Dépenses) pour voir ici ce qu’il reste à payer ce mois-ci.</div>'; return; }
+    const today = new Date().getDate();
+    const up = dated.filter((i) => parseInt(i.day, 10) > today).sort((a, b) => parseInt(a.day, 10) - parseInt(b.day, 10));
+    const total = up.reduce((a, i) => a + (parseFloat(i.amount) || 0), 0);
+    box.innerHTML = '<div class="bm-sec-txt" style="margin-bottom:6px">' + (up.length ? 'Encore à prélever ce mois-ci : <b>' + fmtEUR(total) + '</b>' : 'Toutes tes charges fixes datées sont déjà prélevées ce mois-ci.') + '</div>' +
+      up.map((i) => '<div class="bm-up-row"><span class="bm-up-day">' + parseInt(i.day, 10) + '</span><span class="bm-up-lbl">' + esc(i.label) + '</span><b>' + fmtEUR(parseFloat(i.amount) || 0) + '</b></div>').join('');
+  }
+
+  function renderJournal() {
+    const mk = todayStr().slice(0, 7), q = (root.querySelector('#bm-j-search').value || '').toLowerCase();
+    const name = (id) => { const it = state.categories.quotidien.find((x) => x.id === id); return it ? it.label : 'Ligne supprimée'; };
+    const list = state.journal.map((j, n) => ({ j: j, n: n })).filter((o) => String(o.j.date).slice(0, 7) === mk)
+      .filter((o) => !q || (name(o.j.line) + ' ' + (o.j.note || '')).toLowerCase().indexOf(q) >= 0)
+      .sort((a, b) => (b.j.date > a.j.date ? 1 : b.j.date < a.j.date ? -1 : b.n - a.n));
+    root.querySelector('#bm-journal-total').textContent = fmtEUR(list.reduce((a, o) => a + (parseFloat(o.j.amount) || 0), 0));
+    root.querySelector('#bm-journal').innerHTML = list.length ? list.map((o) => {
+      const j = o.j, d = String(j.date).split('-');
+      return '<div class="bm-j-row"><span class="bm-j-date">' + d[2] + '/' + d[1] + '</span><span class="bm-j-main">' + esc(name(j.line)) + (j.note ? '<small>' + esc(j.note) + '</small>' : '') + '</span><b>' + fmtEUR(parseFloat(j.amount) || 0) + '</b><button class="bm-del-btn" data-jdel="' + j.id + '" title="Supprimer">✕</button></div>';
+    }).join('') : '<div class="bm-sec-txt" style="margin-top:8px">Aucune dépense ce mois-ci. Appuie sur + pour en ajouter.</div>';
+  }
+
+  let xLine = null;
+  function openExpense(lineId) {
+    const lines = state.categories.quotidien;
+    if (!lines.length) { alert('Ajoute d’abord une dépense quotidienne.'); return; }
+    xLine = lineId || lines[0].id;
+    root.querySelector('#bm-x-lines').innerHTML = lines.map((it) => '<button class="bm-chip' + (it.id === xLine ? ' on' : '') + '" data-xl="' + it.id + '">' + esc(it.label.replace(/\s*\(.*\)$/, '')) + '</button>').join('');
+    root.querySelector('#bm-x-amount').value = '';
+    root.querySelector('#bm-x-note').value = '';
+    root.querySelector('#bm-x-date').value = todayStr();
+    root.querySelector('#bm-sheet').classList.add('show');
+    setTimeout(() => root.querySelector('#bm-x-amount').focus(), 60);
+  }
+  function closeExpense() { root.querySelector('#bm-sheet').classList.remove('show'); }
+  function saveExpense() {
+    const v = parseFloat(String(root.querySelector('#bm-x-amount').value).replace(',', '.'));
+    if (!(v > 0)) { root.querySelector('#bm-x-amount').focus(); return; }
+    state.journal.push({ id: newId(), date: root.querySelector('#bm-x-date').value || todayStr(), amount: Math.round(v * 100) / 100, line: xLine, note: root.querySelector('#bm-x-note').value.trim() });
+    closeExpense(); renderJournal(); compute(); save();
+  }
+
+  function setFilter(f) {
+    root.querySelectorAll('#bm-pills button').forEach((b) => b.classList.toggle('active', b.dataset.f === f));
+    root.querySelector('#bm-cat-fixe').style.display = (f === 'all' || f === 'fixe') ? '' : 'none';
+    root.querySelector('#bm-cat-quotidien').style.display = (f === 'all' || f === 'quotidien') ? '' : 'none';
+    root.querySelector('#bm-card-journal').style.display = (f === 'all' || f === 'journal') ? '' : 'none';
+  }
+
+  function initDesign() {
+    root.querySelector('#bm-fab').addEventListener('click', () => openExpense());
+    root.querySelector('#bm-x-cancel').addEventListener('click', closeExpense);
+    root.querySelector('#bm-x-save').addEventListener('click', saveExpense);
+    root.querySelector('#bm-sheet').addEventListener('click', (e) => {
+      if (e.target.id === 'bm-sheet') closeExpense();
+      if (e.target.dataset && e.target.dataset.xl) {
+        xLine = e.target.dataset.xl;
+        root.querySelectorAll('#bm-x-lines .bm-chip').forEach((c) => c.classList.toggle('on', c.dataset.xl === xLine));
+      }
+    });
+    root.querySelector('#bm-pills').addEventListener('click', (e) => { if (e.target.dataset.f) setFilter(e.target.dataset.f); });
+    root.querySelector('#bm-j-search').addEventListener('input', renderJournal);
+  }
+
   function init() {
     load();
+    migrate();
     renderAll();
     attachListeners();
     compute();
     initTabs();
     initSecurity();
     initExtras();
+    initDesign();
   }
 
   init();

@@ -259,9 +259,9 @@ html, body { background:#EEF2F6; }
   </div>
 
     <div class="bm-card">
-      <h2>Répartition</h2>
+      <h2>Où va ton revenu ?</h2>
       <div class="bm-donut-wrap"><svg id="bm-donut" viewBox="0 0 120 120"></svg><div id="bm-legend"></div></div>
-      <p class="bm-sec-txt" style="margin:12px 0 0">Touche l’étiquette d’une dépense (onglet Dépenses) pour changer sa catégorie.</p>
+      <p class="bm-sec-txt" style="margin:12px 0 0">Part de ton revenu du mois. « Reste libre » = ce qui n’est affecté à aucune dépense ni à ton objectif d’épargne. Touche l’étiquette d’une dépense (onglet Dépenses) pour changer sa catégorie.</p>
     </div>
 
     <div class="bm-card">
@@ -570,13 +570,13 @@ html, body { background:#EEF2F6; }
     const spentAfter = hasSolde ? state.journal.reduce((a, j) => (okIds.indexOf(j.line) >= 0 && String(j.date).slice(0, 7) === mkNow && (j.ts || 0) > (state.soldeTs || 0)) ? a + (parseFloat(j.amount) || 0) : a, 0) : 0;
     const dispo = hasSolde ? solde - spentAfter - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
     root.querySelector('#bm-rv-sub').textContent = hasSolde
-      ? 'disponible d’ici la fin du mois d’après ton solde bancaire, dépenses saisies depuis, objectif d’épargne et charges fixes restantes déduits'
+      ? 'disponible jusqu’à la fin du mois d’après ton solde bancaire (objectif d’épargne et charges à venir déduits)'
       : 'disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits';
     const info = root.querySelector('#bm-rv-info');
     if (hasSolde) {
       const ecart = solde - (salaire - (totalFixe - fixRest) - (spentTotal - spentAfter));
-      const l1 = ecart < -0.5 ? 'Il manque ' + fmtEUR(-ecart) + ' par rapport à tes dépenses saisies : des dépenses n’ont pas été notées.'
-        : ecart > 0.5 ? 'Tu as ' + fmtEUR(ecart) + ' de plus que prévu d’après tes dépenses saisies.'
+      const l1 = ecart < -0.5 ? 'Ton solde est inférieur de ' + fmtEUR(-ecart) + ' à ce que prévoient tes données : dépenses non notées, ou salaire saisi différent du montant réellement reçu.'
+        : ecart > 0.5 ? 'Ton solde est supérieur de ' + fmtEUR(ecart) + ' à ce que prévoient tes données.'
         : 'Ton solde correspond à tes dépenses saisies.';
       info.textContent = l1 + ' Si tu dépenses le reste du budget quotidien (' + fmtEUR(restBudget) + '), il te restera ' + fmtEUR(solde - spentAfter - fixRest - restBudget) + ' en fin de mois.';
     } else {
@@ -997,17 +997,20 @@ html, body { background:#EEF2F6; }
     const sums = { essentiel: 0, plaisir: 0, epargne: 0, imprevu: 0 };
     state.categories.fixe.forEach((i) => { if (i.checked) sums[i.type || 'essentiel'] += parseFloat(i.amount) || 0; });
     state.categories.quotidien.forEach((i) => { if (i.checked) sums[i.type || 'essentiel'] += Math.max(parseFloat(i.amount) || 0, parseFloat(i.spent) || 0); });
-    sums.epargne += Math.max(0, epargne);
-    const total = Object.keys(sums).reduce((a, k) => a + sums[k], 0);
+    const free = Math.max(0, epargne), goal = Math.min(Math.max(0, parseFloat(state.objectif) || 0), free);
+    sums.epargne += goal;
+    const parts = Object.keys(TYPES).map((k) => ({ l: TYPES[k].l, c: TYPES[k].c, v: sums[k] }));
+    parts.push({ l: 'Reste libre', c: '#AEB9C9', v: free - goal });
+    const total = parts.reduce((a, p) => a + p.v, 0);
     const C = 2 * Math.PI * 46;
     let off = 0, h = '<circle cx="60" cy="60" r="46" fill="none" stroke="#E6ECF3" stroke-width="16"/>', lg = '';
-    Object.keys(TYPES).forEach((k) => {
-      if (sums[k] > 0 && total > 0) {
-        const len = sums[k] / total * C;
-        h += '<circle cx="60" cy="60" r="46" fill="none" stroke="' + TYPES[k].c + '" stroke-width="16" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 60 60)"/>';
+    parts.forEach((p) => {
+      if (p.v > 0 && total > 0) {
+        const len = p.v / total * C;
+        h += '<circle cx="60" cy="60" r="46" fill="none" stroke="' + p.c + '" stroke-width="16" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 60 60)"/>';
         off += len;
       }
-      lg += '<div class="bm-lg-row"><i style="background:' + TYPES[k].c + '"></i><span>' + TYPES[k].l + '</span><b>' + fmtEUR(sums[k]) + '</b><small>' + (total > 0 ? Math.round(sums[k] / total * 100) : 0) + ' %</small></div>';
+      lg += '<div class="bm-lg-row"><i style="background:' + p.c + '"></i><span>' + p.l + '</span><b>' + fmtEUR(p.v) + '</b><small>' + (total > 0 ? Math.round(p.v / total * 100) : 0) + ' %</small></div>';
     });
     root.querySelector('#bm-donut').innerHTML = h;
     root.querySelector('#bm-legend').innerHTML = lg;
@@ -1020,8 +1023,9 @@ html, body { background:#EEF2F6; }
     const today = new Date().getDate();
     const up = dated.filter((i) => parseInt(i.day, 10) > today).sort((a, b) => parseInt(a.day, 10) - parseInt(b.day, 10));
     const total = up.reduce((a, i) => a + (parseFloat(i.amount) || 0), 0);
+    const undated = state.categories.fixe.filter((i) => i.checked && !(parseInt(i.day, 10) >= 1)).length;
     box.innerHTML = '<div class="bm-sec-txt" style="margin-bottom:6px">' + (up.length ? 'Encore à prélever ce mois-ci : <b>' + fmtEUR(total) + '</b>' : 'Toutes tes charges fixes datées sont déjà prélevées ce mois-ci.') + '</div>' +
-      up.map((i) => '<div class="bm-up-row"><span class="bm-up-day">' + parseInt(i.day, 10) + '</span><span class="bm-up-lbl">' + esc(i.label) + '</span><b>' + fmtEUR(parseFloat(i.amount) || 0) + '</b></div>').join('');
+      up.map((i) => '<div class="bm-up-row"><span class="bm-up-day">' + parseInt(i.day, 10) + '</span><span class="bm-up-lbl">' + esc(i.label) + '</span><b>' + fmtEUR(parseFloat(i.amount) || 0) + '</b></div>').join('') + (undated ? '<div class="bm-sec-txt" style="margin-top:8px">' + undated + ' charge' + (undated > 1 ? 's' : '') + ' fixe' + (undated > 1 ? 's' : '') + ' sans jour de prélèvement ' + (undated > 1 ? 'ne sont pas comptées' : 'n’est pas comptée') + ' ici.</div>' : '');
   }
 
   function renderJournal() {

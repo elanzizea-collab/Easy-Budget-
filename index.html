@@ -199,6 +199,30 @@ html, body { background:#EEF2F6; }
 .bm-x-actions .bm-sec-btn { margin:0; }
 .bm-spent-row { justify-content:flex-start; gap:8px; }
 .bm-plus { margin-left:auto; }
+.bm-monthbar { display:flex; align-items:center; justify-content:center; gap:14px; margin:-4px 0 14px; }
+.bm-monthbar button { width:34px; height:34px; border-radius:50%; border:none; background:#fff; box-shadow:0 3px 10px rgba(30,50,90,.1); font-size:20px; line-height:1; color:#1D467F; cursor:pointer; }
+.bm-monthbar button:disabled { opacity:.3; }
+#bm-m-label { font-size:14px; font-weight:600; min-width:130px; text-align:center; }
+.bm-nomonth .bm-monthbar { display:none; }
+.bm-past .cur-only { display:none !important; }
+.bm-pastnote { display:none; background:#fff; border-radius:14px; padding:12px 14px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
+.bm-past .bm-pastnote { display:block; }
+.bm-modes { display:flex; background:#F0F3F8; border-radius:999px; padding:4px; margin:10px 0 0; }
+.bm-modes button { flex:1; border:none; background:none; padding:8px; border-radius:999px; font-size:13px; color:#6B7A93; font-family:'Inter',sans-serif; cursor:pointer; }
+.bm-modes button.on { background:#1D467F; color:#fff; }
+#bm-gauge { display:block; width:200px; margin:12px auto 0; }
+.bm-tip { padding:10px 12px; border-radius:10px; font-size:13.5px; margin-bottom:8px; border-left:4px solid; }
+.bm-tip.warn { background:#FBF1E3; border-color:#C9954A; }
+.bm-tip.ok { background:#E8F3EC; border-color:#33694A; }
+.bm-ico { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.bm-type { display:inline-flex; align-items:center; gap:5px; }
+.bm-lg-row i.bm-lg-ic { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.bm-lg-ic .bm-ico { width:14px; height:14px; }
+.bm-goal-row { padding:10px 0; border-bottom:1px solid #EEF1F5; font-size:14px; }
+.bm-goal-top { display:flex; align-items:center; gap:8px; }
+.bm-goal-top span { flex:1; }
+.bm-gbar { height:7px; background:#E6ECF3; border-radius:4px; overflow:hidden; margin-top:6px; }
+.bm-gbar i { display:block; height:100%; background:#2F6FB0; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -228,16 +252,21 @@ html, body { background:#EEF2F6; }
     <button class="bm-lock-btn" id="bm-lock-btn" aria-label="Verrouiller"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
   </div>
 
+  <div class="bm-monthbar"><button id="bm-m-prev" aria-label="Mois précédent">‹</button><span id="bm-m-label"></span><button id="bm-m-next" aria-label="Mois suivant">›</button></div>
+  <div class="bm-pastnote" id="bm-pastnote"></div>
+
   <section class="bm-tab active" data-tab="accueil">
-  <div class="bm-total-card">
+  <div class="bm-total-card cur-only">
     <div class="bm-total-label">Épargne possible ce mois-ci</div>
     <div class="bm-total-value" id="bm-total-value">0,00 €</div>
-    <div class="bm-goal-bar"><div class="bm-goal-fill" id="bm-goal-fill"></div></div>
+    <div class="bm-goal-bar" style="display:none"><div class="bm-goal-fill" id="bm-goal-fill"></div></div>
+    <svg id="bm-gauge" viewBox="0 0 140 84"></svg>
     <div class="bm-goal-msg" id="bm-goal-msg"></div>
     <div class="bm-year" id="bm-year"></div>
     <div class="bm-breakdown">
       <div class="bm-line"><span class="bm-line-label">Salaire perçu</span><span id="bm-out-salaire">—</span></div>
       <div class="bm-line" id="bm-line-decouvert"><span class="bm-line-label">Découvert déduit</span><span id="bm-out-decouvert">—</span></div>
+      <div class="bm-line" id="bm-line-entrees"><span class="bm-line-label">Entrées du mois</span><span id="bm-out-entrees">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Somme réelle en compte</span><span id="bm-out-reel">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Dépenses fixes</span><span id="bm-out-fixe">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Dépenses quotidiennes</span><span id="bm-out-quotidien">—</span></div>
@@ -246,7 +275,7 @@ html, body { background:#EEF2F6; }
     </div>
   </div>
 
-  <div class="bm-card">
+  <div class="bm-card cur-only">
     <h2>Reste à vivre</h2>
     <div class="bm-rv-main"><span id="bm-rv-total">—</span><small id="bm-rv-sub">disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits</small></div>
     <div class="bm-rv-grid">
@@ -258,13 +287,18 @@ html, body { background:#EEF2F6; }
     <div class="bm-alert" id="bm-alert"></div>
   </div>
 
-    <div class="bm-card">
+    <div class="bm-card cur-only">
+      <h2>Conseils</h2>
+      <div id="bm-tips"></div>
+    </div>
+
+    <div class="bm-card cur-only">
       <h2>Où va ton revenu ?</h2>
       <div class="bm-donut-wrap"><svg id="bm-donut" viewBox="0 0 120 120"></svg><div id="bm-legend"></div></div>
       <p class="bm-sec-txt" style="margin:12px 0 0">Part de ton revenu du mois. « Reste libre » = ce qui n’est affecté à aucune dépense ni à ton objectif d’épargne. Touche l’étiquette d’une dépense (onglet Dépenses) pour changer sa catégorie.</p>
     </div>
 
-    <div class="bm-card">
+    <div class="bm-card cur-only">
       <h2>Prochains prélèvements</h2>
       <div id="bm-upcoming"></div>
     </div>
@@ -288,6 +322,10 @@ html, body { background:#EEF2F6; }
       <div class="bm-category-title"><span>Journal du mois</span><span class="bm-category-total" id="bm-journal-total">—</span></div>
       <input type="text" id="bm-j-search" class="bm-search" placeholder="Rechercher une dépense…">
       <div id="bm-journal"></div>
+    </div>
+    <div class="bm-card" id="bm-card-entrees">
+      <div class="bm-category-title"><span>Entrées d’argent</span><span class="bm-category-total" id="bm-entrees-total">—</span></div>
+      <div id="bm-entrees"></div>
     </div>
   </section>
 
@@ -344,6 +382,13 @@ html, body { background:#EEF2F6; }
   </div>
 
     <div class="bm-card">
+      <div class="bm-category-title"><span>Tirelire d’épargne</span><span class="bm-category-total" id="bm-pot-total">—</span></div>
+      <div id="bm-goals"></div>
+      <button class="bm-add-btn" id="bm-pot-add">+ Verser ou retirer</button>
+      <button class="bm-add-btn" id="bm-goal-add" style="margin-left:14px">+ Nouvel objectif</button>
+    </div>
+
+    <div class="bm-card">
       <h2>Sauvegarde et partage</h2>
       <p class="bm-sec-txt">Ton budget est stocké uniquement sur ce téléphone. Fais une sauvegarde de temps en temps.</p>
       <button class="bm-sec-btn primary" id="bm-export">Exporter mes données</button>
@@ -368,7 +413,8 @@ html, body { background:#EEF2F6; }
 
   <div class="bm-sheet" id="bm-sheet">
     <div class="bm-sheet-in">
-      <h3>Nouvelle dépense</h3>
+      <h3 id="bm-x-title">Nouvelle dépense</h3>
+      <div class="bm-modes" id="bm-x-modes"><button data-xm="depense">Dépense</button><button data-xm="entree">Entrée</button><button data-xm="epargne">Épargne</button></div>
       <input type="number" inputmode="decimal" step="any" id="bm-x-amount" class="bm-x-big" placeholder="0,00">
       <div class="bm-chips" id="bm-x-lines"></div>
       <div class="bm-x-row"><input type="date" id="bm-x-date"><input type="text" id="bm-x-note" placeholder="Note (facultatif)"></div>
@@ -476,7 +522,7 @@ html, body { background:#EEF2F6; }
       const sp = document.createElement('div');
       sp.className = 'bm-spent-row' + (item.checked ? '' : ' unchecked');
       const tp = TYPES[item.type] || TYPES.essentiel;
-      const chip = '<button class="bm-type" style="background:' + tp.c + '22;color:' + tp.c + '" data-typ="' + cat + '|' + idx + '">' + tp.l + '</button>';
+      const chip = '<button class="bm-type" style="background:' + tp.c + '22;color:' + tp.c + '" data-typ="' + cat + '|' + idx + '">' + ico(item.type || 'essentiel') + tp.l + '</button>';
       if (cat === 'quotidien') {
         sp.innerHTML = chip + '<span class="bm-sp-txt"><b data-spent="' + idx + '">—</b> dépensé · <b data-rest="' + idx + '"></b></span><button class="bm-plus" data-plus="' + idx + '">+ Ajouter</button><div class="bm-pbar"><i data-bar="' + idx + '"></i></div>';
       } else {
@@ -502,7 +548,8 @@ html, body { background:#EEF2F6; }
     syncSpent();
     const salairePercu = parseFloat(state.salaire) || 0;
     const decouvert = Math.max(0, parseFloat(state.decouvert) || 0);
-    const salaire = salairePercu - decouvert;
+    const entriesMonth = monthSum(state.entries, curMonth());
+    const salaire = salairePercu - decouvert + entriesMonth;
     const totalFixe = categoryTotal('fixe');
     const totalQuotidien = categoryTotal('quotidien');
     const effQuot = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(parseFloat(i.amount) || 0, parseFloat(i.spent) || 0) : sum, 0);
@@ -517,6 +564,8 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-out-decouvert').textContent = '−' + fmtEUR(decouvert);
     root.querySelector('#bm-line-decouvert').style.display = decouvert > 0 ? '' : 'none';
     root.querySelector('#bm-out-reel').textContent = fmtEUR(salaire);
+    root.querySelector('#bm-out-entrees').textContent = '+' + fmtEUR(entriesMonth);
+    root.querySelector('#bm-line-entrees').style.display = entriesMonth > 0 ? '' : 'none';
     root.querySelector('#bm-reel-info').textContent = decouvert > 0 ? 'Somme réelle en compte : ' + fmtEUR(salaire) + ' (' + fmtEUR(salairePercu) + ' − ' + fmtEUR(decouvert) + ' de découvert)' : '';
     root.querySelector('#bm-out-fixe').textContent = fmtEUR(totalFixe);
     root.querySelector('#bm-out-quotidien').textContent = fmtEUR(totalQuotidien);
@@ -568,17 +617,20 @@ html, body { background:#EEF2F6; }
     const restBudget = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(0, (parseFloat(i.amount) || 0) - (parseFloat(i.spent) || 0)) : sum, 0);
     const okIds = state.categories.quotidien.filter((i) => i.checked).map((i) => i.id), mkNow = todayStr().slice(0, 7);
     const spentAfter = hasSolde ? state.journal.reduce((a, j) => (okIds.indexOf(j.line) >= 0 && String(j.date).slice(0, 7) === mkNow && (j.ts || 0) > (state.soldeTs || 0)) ? a + (parseFloat(j.amount) || 0) : a, 0) : 0;
-    const dispo = hasSolde ? solde - spentAfter - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
+    let tipGap = null;
+    const entriesAfter = hasSolde ? (state.entries || []).reduce((a, e) => (String(e.date).slice(0, 7) === mkNow && (e.ts || 0) > (state.soldeTs || 0)) ? a + (parseFloat(e.amount) || 0) : a, 0) : 0;
+    const dispo = hasSolde ? solde - spentAfter + entriesAfter - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
     root.querySelector('#bm-rv-sub').textContent = hasSolde
       ? 'disponible jusqu’à la fin du mois d’après ton solde bancaire (objectif d’épargne et charges à venir déduits)'
       : 'disponible d’ici la fin du mois, objectif d’épargne et dépenses déjà faites déduits';
     const info = root.querySelector('#bm-rv-info');
     if (hasSolde) {
-      const ecart = solde - (salaire - (totalFixe - fixRest) - (spentTotal - spentAfter));
+      const ecart = solde - (salaire - entriesAfter - (totalFixe - fixRest) - (spentTotal - spentAfter));
+      tipGap = ecart;
       const l1 = ecart < -0.5 ? 'Ton solde est inférieur de ' + fmtEUR(-ecart) + ' à ce que prévoient tes données : dépenses non notées, ou salaire saisi différent du montant réellement reçu.'
         : ecart > 0.5 ? 'Ton solde est supérieur de ' + fmtEUR(ecart) + ' à ce que prévoient tes données.'
         : 'Ton solde correspond à tes dépenses saisies.';
-      info.textContent = l1 + ' Si tu dépenses le reste du budget quotidien (' + fmtEUR(restBudget) + '), il te restera ' + fmtEUR(solde - spentAfter - fixRest - restBudget) + ' en fin de mois.';
+      info.textContent = l1 + ' Si tu dépenses le reste du budget quotidien (' + fmtEUR(restBudget) + '), il te restera ' + fmtEUR(solde - spentAfter + entriesAfter - fixRest - restBudget) + ' en fin de mois.';
     } else {
       info.textContent = '';
     }
@@ -589,9 +641,15 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-rv-days').textContent = daysLeft + (daysLeft > 1 ? ' jours' : ' jour');
     root.querySelector('#bm-alert').textContent = over.length ? '⚠ Budget dépassé : ' + over.join(', ') : '';
 
-    renderHero(hasSolde ? solde - spentAfter : salaire, hasSolde);
+    renderHero(hasSolde ? solde - spentAfter + entriesAfter : salaire, hasSolde);
     renderRepartition(epargne);
     renderUpcoming();
+    lastEpargne = epargne;
+    renderTips(epargne, objectif, tipGap);
+    renderGauge(epargne, objectif);
+    renderEntries();
+    renderSavings();
+    renderMonth();
     renderChart();
   }
 
@@ -687,6 +745,20 @@ html, body { background:#EEF2F6; }
         renderItems(pr[0]); compute(); save();
         return;
       }
+      if (t.dataset && (t.dataset.edel !== undefined || t.dataset.sdel !== undefined)) {
+        if (t.dataset.edel !== undefined) state.entries = state.entries.filter((x) => x.id !== t.dataset.edel);
+        else state.savings.log = state.savings.log.filter((x) => x.id !== t.dataset.sdel);
+        compute(); save();
+        return;
+      }
+      if (t.dataset && t.dataset.gdel !== undefined) {
+        if (confirm('Supprimer cet objectif ? Les sommes déjà versées passent en « Libre ».')) {
+          state.savings.log.forEach((l) => { if (l.goal === t.dataset.gdel) l.goal = ''; });
+          state.savings.goals = state.savings.goals.filter((g) => g.id !== t.dataset.gdel);
+          renderSavings(); save();
+        }
+        return;
+      }
       if (t.dataset && t.dataset.jdel !== undefined) {
         state.journal = state.journal.filter((j) => j.id !== t.dataset.jdel);
         renderJournal(); compute(); save();
@@ -727,16 +799,21 @@ html, body { background:#EEF2F6; }
         state.history.push(entry);
       }
       renderHistory(); save();
-      setStatus('Mois enregistré');
+      if (lastEpargne > 0 && confirm('Mois enregistré. Verser ' + fmtEUR(lastEpargne) + ' d’épargne dans ta tirelire ?')) {
+        state.savings.log.push({ id: newId(), ts: Date.now(), date: todayStr(), amount: Math.round(lastEpargne * 100) / 100, goal: '', note: 'Épargne du mois' });
+        renderSavings(); save();
+      } else { setStatus('Mois enregistré'); }
     });
 
     root.querySelector('#bm-reset-btn').addEventListener('click', () => {
       if (confirm('Réinitialiser avec les charges actuelles par défaut ? Tes modifications seront perdues.')) {
-        const keepHistory = state.history, keepGoal = state.objectif, keepJournal = state.journal;
+        const keepHistory = state.history, keepGoal = state.objectif, keepJournal = state.journal, keepEntries = state.entries, keepSavings = state.savings;
         state = JSON.parse(JSON.stringify(DEFAULTS));
         state.history = keepHistory;
         state.objectif = keepGoal;
         state.journal = keepJournal;
+        state.entries = keepEntries;
+        state.savings = keepSavings;
         migrate();
         renderAll(); compute(); save();
       }
@@ -747,6 +824,8 @@ html, body { background:#EEF2F6; }
   function showTab(name) {
     root.querySelectorAll('.bm-tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
     root.querySelectorAll('.bm-nav button').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
+    if (name === 'bilan' || name === 'salaire') { viewMonth = curMonth(); renderJournal(); }
+    root.classList.toggle('bm-nomonth', name === 'bilan' || name === 'salaire');
     try { localStorage.setItem('bm-tab', name); } catch (e) {}
     window.scrollTo(0, 0);
   }
@@ -960,6 +1039,8 @@ html, body { background:#EEF2F6; }
   }
   function migrate() {
     state.journal = state.journal || [];
+    state.entries = state.entries || [];
+    state.savings = state.savings || { goals: [], log: [] };
     ['fixe', 'quotidien'].forEach((cat) => state.categories[cat].forEach((it) => {
       if (!it.id) it.id = newId();
       if (!it.type) it.type = guessType(it.label);
@@ -974,7 +1055,7 @@ html, body { background:#EEF2F6; }
     }
   }
   function syncSpent() {
-    const mk = todayStr().slice(0, 7);
+    const mk = viewMonth;
     state.categories.quotidien.forEach((it) => {
       const sum = state.journal.reduce((a, j) => (j.line === it.id && String(j.date).slice(0, 7) === mk) ? a + (parseFloat(j.amount) || 0) : a, 0);
       it.spent = Math.round(sum * 100) / 100;
@@ -999,8 +1080,8 @@ html, body { background:#EEF2F6; }
     state.categories.quotidien.forEach((i) => { if (i.checked) sums[i.type || 'essentiel'] += Math.max(parseFloat(i.amount) || 0, parseFloat(i.spent) || 0); });
     const free = Math.max(0, epargne), goal = Math.min(Math.max(0, parseFloat(state.objectif) || 0), free);
     sums.epargne += goal;
-    const parts = Object.keys(TYPES).map((k) => ({ l: TYPES[k].l, c: TYPES[k].c, v: sums[k] }));
-    parts.push({ l: 'Reste libre', c: '#AEB9C9', v: free - goal });
+    const parts = Object.keys(TYPES).map((k) => ({ k: k, l: TYPES[k].l, c: TYPES[k].c, v: sums[k] }));
+    parts.push({ k: 'libre', l: 'Reste libre', c: '#AEB9C9', v: free - goal });
     const total = parts.reduce((a, p) => a + p.v, 0);
     const C = 2 * Math.PI * 46;
     let off = 0, h = '<circle cx="60" cy="60" r="46" fill="none" stroke="#E6ECF3" stroke-width="16"/>', lg = '';
@@ -1010,7 +1091,7 @@ html, body { background:#EEF2F6; }
         h += '<circle cx="60" cy="60" r="46" fill="none" stroke="' + p.c + '" stroke-width="16" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 60 60)"/>';
         off += len;
       }
-      lg += '<div class="bm-lg-row"><i style="background:' + p.c + '"></i><span>' + p.l + '</span><b>' + fmtEUR(p.v) + '</b><small>' + (total > 0 ? Math.round(p.v / total * 100) : 0) + ' %</small></div>';
+      lg += '<div class="bm-lg-row"><i class="bm-lg-ic" style="background:' + p.c + '22;color:' + p.c + '">' + ico(p.k) + '</i><span>' + p.l + '</span><b>' + fmtEUR(p.v) + '</b><small>' + (total > 0 ? Math.round(p.v / total * 100) : 0) + ' %</small></div>';
     });
     root.querySelector('#bm-donut').innerHTML = h;
     root.querySelector('#bm-legend').innerHTML = lg;
@@ -1029,7 +1110,7 @@ html, body { background:#EEF2F6; }
   }
 
   function renderJournal() {
-    const mk = todayStr().slice(0, 7), q = (root.querySelector('#bm-j-search').value || '').toLowerCase();
+    const mk = viewMonth, q = (root.querySelector('#bm-j-search').value || '').toLowerCase();
     const name = (id) => { const it = state.categories.quotidien.find((x) => x.id === id); return it ? it.label : 'Ligne supprimée'; };
     const list = state.journal.map((j, n) => ({ j: j, n: n })).filter((o) => String(o.j.date).slice(0, 7) === mk)
       .filter((o) => !q || (name(o.j.line) + ' ' + (o.j.note || '')).toLowerCase().indexOf(q) >= 0)
@@ -1041,23 +1122,40 @@ html, body { background:#EEF2F6; }
     }).join('') : '<div class="bm-sec-txt" style="margin-top:8px">Aucune dépense ce mois-ci. Appuie sur + pour en ajouter.</div>';
   }
 
-  let xLine = null;
-  function openExpense(lineId) {
-    const lines = state.categories.quotidien;
-    if (!lines.length) { alert('Ajoute d’abord une dépense quotidienne.'); return; }
-    xLine = lineId || lines[0].id;
-    root.querySelector('#bm-x-lines').innerHTML = lines.map((it) => '<button class="bm-chip' + (it.id === xLine ? ' on' : '') + '" data-xl="' + it.id + '">' + esc(it.label.replace(/\s*\(.*\)$/, '')) + '</button>').join('');
+  let xLine = null, xMode = 'depense';
+  function renderSheet() {
+    root.querySelectorAll('#bm-x-modes button').forEach((b) => b.classList.toggle('on', b.dataset.xm === xMode));
+    root.querySelector('#bm-x-title').textContent = xMode === 'depense' ? 'Nouvelle dépense' : xMode === 'entree' ? 'Nouvelle entrée d’argent' : 'Tirelire d’épargne';
+    root.querySelector('#bm-x-note').placeholder = xMode === 'entree' ? 'Source (vente, remboursement…)' : xMode === 'epargne' ? 'Note (montant négatif = retrait)' : 'Note (facultatif)';
+    const chip = (id, name) => '<button class="bm-chip' + (id === xLine ? ' on' : '') + '" data-xl="' + (id === null ? 'free' : id) + '">' + esc(String(name).replace(/\s*\(.*\)$/, '')) + '</button>';
+    const box = root.querySelector('#bm-x-lines');
+    if (xMode === 'depense') {
+      const lines = state.categories.quotidien;
+      if (!lines.some((l) => l.id === xLine)) xLine = lines.length ? lines[0].id : null;
+      box.innerHTML = lines.map((l) => chip(l.id, l.label)).join('');
+    } else if (xMode === 'epargne') {
+      const gs = state.savings.goals;
+      if (xLine !== null && !gs.some((g) => g.id === xLine)) xLine = null;
+      box.innerHTML = chip(null, 'Libre') + gs.map((g) => chip(g.id, g.name)).join('');
+    } else { box.innerHTML = ''; }
+  }
+  function openExpense(lineId, mode) {
+    xMode = mode || 'depense'; xLine = lineId || null;
     root.querySelector('#bm-x-amount').value = '';
     root.querySelector('#bm-x-note').value = '';
-    root.querySelector('#bm-x-date').value = todayStr();
+    root.querySelector('#bm-x-date').value = viewMonth === curMonth() ? todayStr() : viewMonth + '-01';
     root.querySelector('#bm-sheet').classList.add('show');
+    renderSheet();
     setTimeout(() => root.querySelector('#bm-x-amount').focus(), 60);
   }
   function closeExpense() { root.querySelector('#bm-sheet').classList.remove('show'); }
   function saveExpense() {
     const v = parseFloat(String(root.querySelector('#bm-x-amount').value).replace(',', '.'));
-    if (!(v > 0)) { root.querySelector('#bm-x-amount').focus(); return; }
-    state.journal.push({ id: newId(), ts: Date.now(), date: root.querySelector('#bm-x-date').value || todayStr(), amount: Math.round(v * 100) / 100, line: xLine, note: root.querySelector('#bm-x-note').value.trim() });
+    if (!v || (xMode !== 'epargne' && v < 0)) { root.querySelector('#bm-x-amount').focus(); return; }
+    const e = { id: newId(), ts: Date.now(), date: root.querySelector('#bm-x-date').value || todayStr(), amount: Math.round(v * 100) / 100, note: root.querySelector('#bm-x-note').value.trim() };
+    if (xMode === 'depense') { if (!xLine) { alert('Ajoute d’abord une dépense quotidienne.'); return; } e.line = xLine; state.journal.push(e); }
+    else if (xMode === 'entree') state.entries.push(e);
+    else { e.goal = xLine || ''; state.savings.log.push(e); }
     closeExpense(); renderJournal(); compute(); save();
   }
 
@@ -1066,6 +1164,7 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-cat-fixe').style.display = (f === 'all' || f === 'fixe') ? '' : 'none';
     root.querySelector('#bm-cat-quotidien').style.display = (f === 'all' || f === 'quotidien') ? '' : 'none';
     root.querySelector('#bm-card-journal').style.display = (f === 'all' || f === 'journal') ? '' : 'none';
+    root.querySelector('#bm-card-entrees').style.display = (f === 'all' || f === 'journal') ? '' : 'none';
   }
 
   function initDesign() {
@@ -1073,14 +1172,104 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-x-cancel').addEventListener('click', closeExpense);
     root.querySelector('#bm-x-save').addEventListener('click', saveExpense);
     root.querySelector('#bm-sheet').addEventListener('click', (e) => {
+      const d = e.target.dataset || {};
       if (e.target.id === 'bm-sheet') closeExpense();
-      if (e.target.dataset && e.target.dataset.xl) {
-        xLine = e.target.dataset.xl;
-        root.querySelectorAll('#bm-x-lines .bm-chip').forEach((c) => c.classList.toggle('on', c.dataset.xl === xLine));
-      }
+      if (d.xm) { xMode = d.xm; xLine = null; renderSheet(); }
+      if (d.xl) { xLine = d.xl === 'free' ? null : d.xl; renderSheet(); }
+    });
+    root.querySelector('#bm-m-prev').addEventListener('click', () => goMonth(-1));
+    root.querySelector('#bm-m-next').addEventListener('click', () => goMonth(1));
+    root.querySelector('#bm-pot-add').addEventListener('click', () => openExpense(null, 'epargne'));
+    root.querySelector('#bm-goal-add').addEventListener('click', () => {
+      const name = (prompt('Nom de l’objectif (ex : voyage)') || '').trim();
+      if (!name) return;
+      const t = parseFloat(String(prompt('Montant à atteindre (€)') || '').replace(',', '.')) || 0;
+      state.savings.goals.push({ id: newId(), name: name, target: t });
+      renderSavings(); save();
     });
     root.querySelector('#bm-pills').addEventListener('click', (e) => { if (e.target.dataset.f) setFilter(e.target.dataset.f); });
     root.querySelector('#bm-j-search').addEventListener('input', renderJournal);
+  }
+
+
+  let viewMonth = todayStr().slice(0, 7), lastEpargne = 0;
+  const ICONS = {
+    essentiel: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+    plaisir: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>',
+    epargne: '<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/>',
+    imprevu: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    libre: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'
+  };
+  function ico(k) { return '<svg class="bm-ico" viewBox="0 0 24 24">' + (ICONS[k] || ICONS.essentiel) + '</svg>'; }
+  function curMonth() { return todayStr().slice(0, 7); }
+  function monthSum(list, mk) { return (list || []).reduce((a, x) => String(x.date).slice(0, 7) === mk ? a + (parseFloat(x.amount) || 0) : a, 0); }
+
+  function renderMonth() {
+    const cur = curMonth(), ym = viewMonth.split('-').map(Number);
+    let lab = new Date(ym[0], ym[1] - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    lab = lab.charAt(0).toUpperCase() + lab.slice(1);
+    root.querySelector('#bm-m-label').textContent = lab;
+    root.querySelector('#bm-m-next').disabled = viewMonth >= cur;
+    root.classList.toggle('bm-past', viewMonth !== cur);
+    if (viewMonth !== cur) {
+      const sp = monthSum(state.journal, viewMonth), en = monthSum(state.entries, viewMonth);
+      root.querySelector('#bm-pastnote').textContent = lab + ' : ' + fmtEUR(sp) + ' dépensés, ' + fmtEUR(en) + ' d’entrées. Consultation d’un mois passé : le reste à vivre ne concerne que le mois en cours.';
+      root.querySelector('#bm-hero-amt').textContent = fmtEUR(sp);
+      root.querySelector('#bm-hero-lbl').textContent = lab.toLowerCase() + ' · dépensé';
+    }
+  }
+  function goMonth(delta) {
+    const ym = viewMonth.split('-').map(Number), d = new Date(ym[0], ym[1] - 1 + delta, 1);
+    const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    if (k > curMonth()) return;
+    viewMonth = k; renderJournal(); compute();
+  }
+
+  function renderEntries() {
+    const list = (state.entries || []).filter((e) => String(e.date).slice(0, 7) === viewMonth).sort((a, b) => a.date < b.date ? 1 : -1);
+    root.querySelector('#bm-entrees-total').textContent = fmtEUR(list.reduce((a, e) => a + (parseFloat(e.amount) || 0), 0));
+    root.querySelector('#bm-entrees').innerHTML = list.length ? list.map((e) => {
+      const d = String(e.date).split('-');
+      return '<div class="bm-j-row"><span class="bm-j-date">' + d[2] + '/' + d[1] + '</span><span class="bm-j-main">' + esc(e.note || 'Entrée') + '</span><b style="color:var(--green)">+' + fmtEUR(parseFloat(e.amount) || 0) + '</b><button class="bm-del-btn" data-edel="' + e.id + '" title="Supprimer">✕</button></div>';
+    }).join('') : '<div class="bm-sec-txt">Aucune entrée ce mois-ci. Utilise + puis « Entrée » (vente, remboursement, prime…).</div>';
+  }
+
+  function renderSavings() {
+    const sv = state.savings, total = sv.log.reduce((a, l) => a + (parseFloat(l.amount) || 0), 0);
+    root.querySelector('#bm-pot-total').textContent = fmtEUR(total);
+    let used = 0;
+    let h = sv.goals.map((g) => {
+      const saved = sv.log.reduce((a, l) => l.goal === g.id ? a + (parseFloat(l.amount) || 0) : a, 0), t = parseFloat(g.target) || 0;
+      used += saved;
+      return '<div class="bm-goal-row"><div class="bm-goal-top"><span>' + esc(g.name) + '</span><b>' + fmtEUR(saved) + (t ? ' / ' + fmtEUR(t) : '') + '</b><button class="bm-del-btn" data-gdel="' + g.id + '" title="Supprimer">✕</button></div>' + (t ? '<div class="bm-gbar"><i style="width:' + Math.max(0, Math.min(100, saved / t * 100)) + '%"></i></div>' : '') + '</div>';
+    }).join('');
+    h += '<div class="bm-goal-row"><div class="bm-goal-top"><span>Libre (sans objectif)</span><b>' + fmtEUR(total - used) + '</b></div></div>';
+    h += sv.log.slice(-5).reverse().map((l) => '<div class="bm-j-row"><span class="bm-j-date">' + String(l.date).slice(8, 10) + '/' + String(l.date).slice(5, 7) + '</span><span class="bm-j-main">' + esc(l.note || (l.amount < 0 ? 'Retrait' : 'Versement')) + '</span><b>' + fmtEUR(parseFloat(l.amount) || 0) + '</b><button class="bm-del-btn" data-sdel="' + l.id + '" title="Supprimer">✕</button></div>').join('');
+    root.querySelector('#bm-goals').innerHTML = h;
+  }
+
+  function renderGauge(epargne, objectif) {
+    const L = Math.PI * 56, has = objectif > 0, ratio = has ? Math.max(0, Math.min(1, epargne / objectif)) : 0;
+    const arc = 'M14 72 A56 56 0 0 1 126 72';
+    root.querySelector('#bm-gauge').innerHTML = '<path d="' + arc + '" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="12" stroke-linecap="round"/>' +
+      (ratio > 0 ? '<path d="' + arc + '" fill="none" stroke="' + (ratio >= 1 ? '#8FD3A8' : '#E3B96B') + '" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + (ratio * L) + ' ' + L + '"/>' : '') +
+      '<text x="70" y="62" text-anchor="middle" font-size="17" font-weight="600" fill="#F4F6F2" font-family="Fraunces,serif">' + (has ? Math.round(ratio * 100) + ' %' : '—') + '</text>' +
+      '<text x="70" y="78" text-anchor="middle" font-size="8" fill="#B9C2BB">' + (has ? 'objectif ' + fmtEUR(objectif) : 'aucun objectif') + '</text>';
+  }
+
+  function renderTips(epargne, objectif, gap) {
+    const out = [], now = new Date(), prog = now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    state.categories.quotidien.forEach((i) => {
+      if (!i.checked) return;
+      const b = parseFloat(i.amount) || 0, sp = parseFloat(i.spent) || 0;
+      if (b > 0 && sp > b) out.push(['warn', i.label + ' : budget dépassé de ' + fmtEUR(sp - b) + '.']);
+      else if (b > 0 && sp / b > 0.8 && prog < 0.8) out.push(['warn', i.label + ' : ' + Math.round(sp / b * 100) + ' % du budget déjà dépensé à ' + Math.round(prog * 100) + ' % du mois.']);
+    });
+    if (gap !== null && gap < -5) out.push(['warn', 'Ton solde est ' + fmtEUR(-gap) + ' sous tes données : pense à noter toutes tes dépenses.']);
+    if (objectif > 0 && epargne < objectif) out.push(['warn', 'Il manque ' + fmtEUR(objectif - epargne) + ' pour atteindre ton objectif d’épargne.']);
+    if (objectif > 0 && epargne >= objectif) out.push(['ok', 'Objectif d’épargne atteint, avec ' + fmtEUR(epargne - objectif) + ' de marge.']);
+    if (!out.length) out.push(['ok', 'Tout est sous contrôle ce mois-ci.']);
+    root.querySelector('#bm-tips').innerHTML = out.slice(0, 4).map((t) => '<div class="bm-tip ' + t[0] + '">' + esc(t[1]) + '</div>').join('');
   }
 
   function init() {

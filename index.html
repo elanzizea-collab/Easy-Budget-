@@ -223,6 +223,8 @@ html, body { background:#EEF2F6; }
 .bm-goal-top span { flex:1; }
 .bm-gbar { height:7px; background:#E6ECF3; border-radius:4px; overflow:hidden; margin-top:6px; }
 .bm-gbar i { display:block; height:100%; background:#2F6FB0; border-radius:4px; }
+.bm-mts-total { font-family:'Fraunces',serif; font-size:36px; font-weight:600; }
+.bm-mts-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
 </style>
 </head>
 <body>
@@ -296,6 +298,18 @@ html, body { background:#EEF2F6; }
       <h2>Où va ton revenu ?</h2>
       <div class="bm-donut-wrap"><svg id="bm-donut" viewBox="0 0 120 120"></svg><div id="bm-legend"></div></div>
       <p class="bm-sec-txt" style="margin:12px 0 0">Part de ton revenu du mois. « Reste libre » = ce qui n’est affecté à aucune dépense ni à ton objectif d’épargne. Touche l’étiquette d’une dépense (onglet Dépenses) pour changer sa catégorie.</p>
+    </div>
+
+    <div class="bm-card cur-only">
+      <h2>Mtsango</h2>
+      <div class="bm-mts-total" id="bm-mts-total">—</div>
+      <div class="bm-sec-txt" id="bm-mts-sub"></div>
+      <div class="bm-mts-grid">
+        <div class="bm-field"><label for="bm-mts-start">Début</label><input type="month" id="bm-mts-start"></div>
+        <div class="bm-field"><label for="bm-mts-monthly">Cotisation / mois (€)</label><input type="number" id="bm-mts-monthly" placeholder="500"></div>
+      </div>
+      <div class="bm-field"><label for="bm-mts-received">Montant déjà reçu à ton tour (€)</label><input type="number" id="bm-mts-received" placeholder="0"></div>
+      <div class="bm-hint" id="bm-mts-net"></div>
     </div>
 
     <div class="bm-card cur-only">
@@ -538,6 +552,7 @@ html, body { background:#EEF2F6; }
     renderItems('quotidien');
     renderHistory();
     renderJournal();
+    renderMtsInputs();
   }
 
   function categoryTotal(cat) {
@@ -650,6 +665,7 @@ html, body { background:#EEF2F6; }
     renderEntries();
     renderSavings();
     renderMonth();
+    renderMts();
     renderChart();
   }
 
@@ -1041,6 +1057,7 @@ html, body { background:#EEF2F6; }
     state.journal = state.journal || [];
     state.entries = state.entries || [];
     state.savings = state.savings || { goals: [], log: [] };
+    state.mtsango = state.mtsango || { start: '2026-03', monthly: 500, received: '' };
     ['fixe', 'quotidien'].forEach((cat) => state.categories[cat].forEach((it) => {
       if (!it.id) it.id = newId();
       if (!it.type) it.type = guessType(it.label);
@@ -1177,6 +1194,7 @@ html, body { background:#EEF2F6; }
       if (d.xm) { xMode = d.xm; xLine = null; renderSheet(); }
       if (d.xl) { xLine = d.xl === 'free' ? null : d.xl; renderSheet(); }
     });
+    ['start', 'monthly', 'received'].forEach((k) => root.querySelector('#bm-mts-' + k).addEventListener('input', (e) => { state.mtsango[k] = e.target.value; renderMts(); save(); }));
     root.querySelector('#bm-m-prev').addEventListener('click', () => goMonth(-1));
     root.querySelector('#bm-m-next').addEventListener('click', () => goMonth(1));
     root.querySelector('#bm-pot-add').addEventListener('click', () => openExpense(null, 'epargne'));
@@ -1270,6 +1288,21 @@ html, body { background:#EEF2F6; }
     if (objectif > 0 && epargne >= objectif) out.push(['ok', 'Objectif d’épargne atteint, avec ' + fmtEUR(epargne - objectif) + ' de marge.']);
     if (!out.length) out.push(['ok', 'Tout est sous contrôle ce mois-ci.']);
     root.querySelector('#bm-tips').innerHTML = out.slice(0, 4).map((t) => '<div class="bm-tip ' + t[0] + '">' + esc(t[1]) + '</div>').join('');
+  }
+
+  function renderMtsInputs() {
+    root.querySelector('#bm-mts-start').value = state.mtsango.start || '';
+    root.querySelector('#bm-mts-monthly').value = state.mtsango.monthly;
+    root.querySelector('#bm-mts-received').value = state.mtsango.received;
+  }
+  function renderMts() {
+    const m = state.mtsango, st = String(m.start || '').split('-').map(Number), c = curMonth().split('-').map(Number);
+    const n = (st.length === 2 && st[0]) ? Math.max(0, (c[0] - st[0]) * 12 + (c[1] - st[1]) + 1) : 0;
+    const mon = parseFloat(m.monthly) || 0, total = n * mon, rec = parseFloat(m.received) || 0;
+    root.querySelector('#bm-mts-total').textContent = fmtEUR(total);
+    const lab = (st.length === 2 && st[0]) ? new Date(st[0], st[1] - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '—';
+    root.querySelector('#bm-mts-sub').textContent = n + ' mois × ' + fmtEUR(mon) + ' versés depuis ' + lab;
+    root.querySelector('#bm-mts-net').textContent = rec > 0 ? 'Déjà reçu : ' + fmtEUR(rec) + ' · reste à récupérer : ' + fmtEUR(total - rec) : 'Renseigne le montant reçu à ton tour pour voir ce qu’il te reste à récupérer.';
   }
 
   function init() {

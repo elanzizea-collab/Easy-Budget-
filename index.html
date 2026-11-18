@@ -225,6 +225,7 @@ html, body { background:#EEF2F6; }
 .bm-gbar i { display:block; height:100%; background:#2F6FB0; border-radius:4px; }
 .bm-mts-total { font-family:'Fraunces',serif; font-size:36px; font-weight:600; }
 .bm-mts-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.bm-j-main[data-jedit] { cursor:pointer; }
 </style>
 </head>
 <body>
@@ -755,6 +756,8 @@ html, body { background:#EEF2F6; }
 
     root.addEventListener('click', (e) => {
       const t = e.target;
+      const je = t.closest ? t.closest('[data-jedit]') : null;
+      if (je) { openEdit(je.dataset.jedit); return; }
       if (t.dataset && t.dataset.typ !== undefined) {
         const pr = t.dataset.typ.split('|'), it = state.categories[pr[0]][parseInt(pr[1], 10)], order = Object.keys(TYPES);
         it.type = order[(order.indexOf(it.type) + 1) % order.length];
@@ -1056,6 +1059,10 @@ html, body { background:#EEF2F6; }
   function migrate() {
     state.journal = state.journal || [];
     state.entries = state.entries || [];
+    if (!state.imprevuAdded) {
+      if (!state.categories.quotidien.some((i) => /impr[ée]vu/i.test(i.label))) state.categories.quotidien.push({ label: 'Imprévus', amount: 0, checked: true, id: newId(), type: 'imprevu', day: '' });
+      state.imprevuAdded = true;
+    }
     state.savings = state.savings || { goals: [], log: [] };
     state.mtsango = state.mtsango || { start: '2026-03', monthly: 500, received: '' };
     ['fixe', 'quotidien'].forEach((cat) => state.categories[cat].forEach((it) => {
@@ -1135,21 +1142,22 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-journal-total').textContent = fmtEUR(list.reduce((a, o) => a + (parseFloat(o.j.amount) || 0), 0));
     root.querySelector('#bm-journal').innerHTML = list.length ? list.map((o) => {
       const j = o.j, d = String(j.date).split('-');
-      return '<div class="bm-j-row"><span class="bm-j-date">' + d[2] + '/' + d[1] + '</span><span class="bm-j-main">' + esc(name(j.line)) + (j.note ? '<small>' + esc(j.note) + '</small>' : '') + '</span><b>' + fmtEUR(parseFloat(j.amount) || 0) + '</b><button class="bm-del-btn" data-jdel="' + j.id + '" title="Supprimer">✕</button></div>';
-    }).join('') : '<div class="bm-sec-txt" style="margin-top:8px">Aucune dépense ce mois-ci. Appuie sur + pour en ajouter.</div>';
+      return '<div class="bm-j-row"><span class="bm-j-date">' + d[2] + '/' + d[1] + '</span><span class="bm-j-main" data-jedit="' + j.id + '">' + esc(name(j.line)) + (j.note ? '<small>' + esc(j.note) + '</small>' : '') + '</span><b>' + fmtEUR(parseFloat(j.amount) || 0) + '</b><button class="bm-del-btn" data-jdel="' + j.id + '" title="Supprimer">✕</button></div>';
+    }).join('') + '<div class="bm-sec-txt" style="margin-top:8px">Touche une dépense pour la modifier (ligne, montant, date).</div>' : '<div class="bm-sec-txt" style="margin-top:8px">Aucune dépense ce mois-ci. Appuie sur + pour en ajouter.</div>';
   }
 
-  let xLine = null, xMode = 'depense';
+  let xLine = null, xMode = 'depense', xEdit = null;
   function renderSheet() {
+    root.querySelector('#bm-x-modes').style.display = xEdit ? 'none' : '';
     root.querySelectorAll('#bm-x-modes button').forEach((b) => b.classList.toggle('on', b.dataset.xm === xMode));
-    root.querySelector('#bm-x-title').textContent = xMode === 'depense' ? 'Nouvelle dépense' : xMode === 'entree' ? 'Nouvelle entrée d’argent' : 'Tirelire d’épargne';
+    root.querySelector('#bm-x-title').textContent = xEdit ? 'Modifier la dépense' : xMode === 'depense' ? 'Nouvelle dépense' : xMode === 'entree' ? 'Nouvelle entrée d’argent' : 'Tirelire d’épargne';
     root.querySelector('#bm-x-note').placeholder = xMode === 'entree' ? 'Source (vente, remboursement…)' : xMode === 'epargne' ? 'Note (montant négatif = retrait)' : 'Note (facultatif)';
     const chip = (id, name) => '<button class="bm-chip' + (id === xLine ? ' on' : '') + '" data-xl="' + (id === null ? 'free' : id) + '">' + esc(String(name).replace(/\s*\(.*\)$/, '')) + '</button>';
     const box = root.querySelector('#bm-x-lines');
     if (xMode === 'depense') {
       const lines = state.categories.quotidien;
-      if (!lines.some((l) => l.id === xLine)) xLine = lines.length ? lines[0].id : null;
-      box.innerHTML = lines.map((l) => chip(l.id, l.label)).join('');
+      if (!lines.some((l) => l.id === xLine)) xLine = null;
+      box.innerHTML = lines.map((l) => chip(l.id, l.label)).join('') + '<button class="bm-chip" data-xl="new">＋ Nouvelle ligne</button>';
     } else if (xMode === 'epargne') {
       const gs = state.savings.goals;
       if (xLine !== null && !gs.some((g) => g.id === xLine)) xLine = null;
@@ -1157,7 +1165,7 @@ html, body { background:#EEF2F6; }
     } else { box.innerHTML = ''; }
   }
   function openExpense(lineId, mode) {
-    xMode = mode || 'depense'; xLine = lineId || null;
+    xMode = mode || 'depense'; xLine = lineId || null; xEdit = null;
     root.querySelector('#bm-x-amount').value = '';
     root.querySelector('#bm-x-note').value = '';
     root.querySelector('#bm-x-date').value = viewMonth === curMonth() ? todayStr() : viewMonth + '-01';
@@ -1165,12 +1173,29 @@ html, body { background:#EEF2F6; }
     renderSheet();
     setTimeout(() => root.querySelector('#bm-x-amount').focus(), 60);
   }
-  function closeExpense() { root.querySelector('#bm-sheet').classList.remove('show'); }
+  function openEdit(id) {
+    const j = state.journal.find((x) => x.id === id);
+    if (!j) return;
+    xEdit = id; xMode = 'depense'; xLine = j.line;
+    root.querySelector('#bm-x-amount').value = j.amount;
+    root.querySelector('#bm-x-note').value = j.note || '';
+    root.querySelector('#bm-x-date').value = j.date;
+    root.querySelector('#bm-sheet').classList.add('show');
+    renderSheet();
+  }
+  function closeExpense() { xEdit = null; root.querySelector('#bm-sheet').classList.remove('show'); }
   function saveExpense() {
     const v = parseFloat(String(root.querySelector('#bm-x-amount').value).replace(',', '.'));
     if (!v || (xMode !== 'epargne' && v < 0)) { root.querySelector('#bm-x-amount').focus(); return; }
+    if (xEdit) {
+      const j = state.journal.find((x) => x.id === xEdit);
+      if (!xLine) { alert('Choisis la ligne de dépense.'); return; }
+      if (j) { j.line = xLine; j.amount = Math.round(v * 100) / 100; j.date = root.querySelector('#bm-x-date').value || j.date; j.note = root.querySelector('#bm-x-note').value.trim(); }
+      closeExpense(); renderJournal(); compute(); save();
+      return;
+    }
     const e = { id: newId(), ts: Date.now(), date: root.querySelector('#bm-x-date').value || todayStr(), amount: Math.round(v * 100) / 100, note: root.querySelector('#bm-x-note').value.trim() };
-    if (xMode === 'depense') { if (!xLine) { alert('Ajoute d’abord une dépense quotidienne.'); return; } e.line = xLine; state.journal.push(e); }
+    if (xMode === 'depense') { if (!xLine) { alert('Choisis la ligne de dépense.'); return; } e.line = xLine; state.journal.push(e); }
     else if (xMode === 'entree') state.entries.push(e);
     else { e.goal = xLine || ''; state.savings.log.push(e); }
     closeExpense(); renderJournal(); compute(); save();
@@ -1192,7 +1217,14 @@ html, body { background:#EEF2F6; }
       const d = e.target.dataset || {};
       if (e.target.id === 'bm-sheet') closeExpense();
       if (d.xm) { xMode = d.xm; xLine = null; renderSheet(); }
-      if (d.xl) { xLine = d.xl === 'free' ? null : d.xl; renderSheet(); }
+      if (d.xl === 'new') {
+        const name = (prompt('Nom de la nouvelle ligne (ex : Imprévus)') || '').trim();
+        if (name) {
+          const id = newId();
+          state.categories.quotidien.push({ label: name, amount: 0, checked: true, id: id, type: /impr[ée]vu/i.test(name) ? 'imprevu' : 'plaisir', day: '' });
+          xLine = id; renderItems('quotidien'); renderSheet(); save();
+        }
+      } else if (d.xl) { xLine = d.xl === 'free' ? null : d.xl; renderSheet(); }
     });
     ['start', 'monthly', 'received'].forEach((k) => root.querySelector('#bm-mts-' + k).addEventListener('input', (e) => { state.mtsango[k] = e.target.value; renderMts(); save(); }));
     root.querySelector('#bm-m-prev').addEventListener('click', () => goMonth(-1));

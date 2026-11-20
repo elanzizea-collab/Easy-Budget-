@@ -272,7 +272,8 @@ html, body { background:#EEF2F6; }
       <div class="bm-line" id="bm-line-entrees"><span class="bm-line-label">Entrées du mois</span><span id="bm-out-entrees">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Somme réelle en compte</span><span id="bm-out-reel">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Dépenses fixes</span><span id="bm-out-fixe">—</span></div>
-      <div class="bm-line"><span class="bm-line-label">Dépenses quotidiennes</span><span id="bm-out-quotidien">—</span></div>
+      <div class="bm-line"><span class="bm-line-label">Dépenses quotidiennes (budget)</span><span id="bm-out-quotidien">—</span></div>
+      <div class="bm-line" id="bm-line-over"><span class="bm-line-label">Dépassements de budget</span><span id="bm-out-over">—</span></div>
       <div class="bm-line"><span class="bm-line-label">Quotidien dépensé / prévu</span><span id="bm-out-spent">—</span></div>
       <div class="bm-line bm-strong"><span>Total des charges</span><span id="bm-out-total-charges">—</span></div>
     </div>
@@ -585,6 +586,8 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-reel-info').textContent = decouvert > 0 ? 'Somme réelle en compte : ' + fmtEUR(salaire) + ' (' + fmtEUR(salairePercu) + ' − ' + fmtEUR(decouvert) + ' de découvert)' : '';
     root.querySelector('#bm-out-fixe').textContent = fmtEUR(totalFixe);
     root.querySelector('#bm-out-quotidien').textContent = fmtEUR(totalQuotidien);
+    root.querySelector('#bm-out-over').textContent = '+' + fmtEUR(Math.max(0, effQuot - totalQuotidien));
+    root.querySelector('#bm-line-over').style.display = effQuot - totalQuotidien > 0.005 ? '' : 'none';
     root.querySelector('#bm-out-total-charges').textContent = fmtEUR(totalCharges);
 
     root.querySelector('[data-cat-total="fixe"]').textContent = fmtEUR(totalFixe);

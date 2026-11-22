@@ -1,11 +1,11 @@
 {
-  "name": "Easy Budget",
-  "short_name": "Easy Budget",
+  "name": "EasyBudget",
+  "short_name": "EasyBudget",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#EEF1EC",
-  "theme_color": "#1C2620",
+  "background_color": "#EAF4FD",
+  "theme_color": "#E9EDF5",
   "lang": "fr",
   "icons": [
     {

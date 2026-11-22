@@ -226,6 +226,40 @@ html, body { background:#EEF2F6; }
 .bm-mts-total { font-family:'Fraunces',serif; font-size:36px; font-weight:600; }
 .bm-mts-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
 .bm-j-main[data-jedit] { cursor:pointer; }
+.bm-root { --brass:#6560FF; --brass-soft:#EDEBFF; --green:#1A9E6E; --red:#E5484D; --ink:#1E2A44; --ink-soft:#6F7FA0; --line:#E3E8F1; background:linear-gradient(180deg,#E9EDF5 0,#F4F6FA 300px); }
+html, body { background:#F1F4F9; }
+.bm-card { border-radius:28px; box-shadow:0 8px 26px rgba(40,60,110,.07); padding:22px; }
+.bm-card h2, .bm-category-title span:first-child { font-family:'Inter',sans-serif !important; font-weight:700; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; color:#1E2A44; }
+.bm-hero-amt, .bm-total-value, .bm-rv-main, .bm-mts-total, .bm-sheet-in h3, .bm-x-big, .bm-lock-title, .bm-sim-amt { font-family:'Inter',sans-serif !important; font-weight:700 !important; letter-spacing:-.02em; }
+.bm-hero-amt { font-size:30px; color:#1E2A44; }
+.bm-hero-lbl { font-weight:500; }
+.bm-rv-main { font-size:38px; color:#1E2A44; }
+.bm-sim-amt { font-size:36px; margin:14px 0 6px; }
+.bm-nav .bm-fab { background:#6560FF; color:#fff; box-shadow:0 8px 20px rgba(101,96,255,.45); }
+.bm-nav button.active { color:#6560FF; }
+.bm-nav button.active::before { background:#6560FF; }
+.bm-pills button.active, .bm-chip.on, .bm-modes button.on { background:#6560FF; border-color:#6560FF; color:#fff; }
+.bm-monthbar button { color:#6560FF; }
+.bm-sec-btn.primary { background:#6560FF; border-color:#6560FF; }
+.bm-plus { background:#EDEBFF; color:#6560FF; }
+.bm-rv-grid div { background:#F4F6FB; }
+.bm-frame { background:#6560FF; border-radius:32px; padding:10px 10px 0; margin-bottom:14px; }
+.bm-frame > .bm-card { margin-bottom:0; box-shadow:none; border-radius:24px; }
+.bm-frame-foot { display:flex; justify-content:space-between; align-items:center; color:#fff; padding:12px 10px 14px; font-size:13.5px; }
+.bm-frame-foot button { background:rgba(255,255,255,.2); border:none; color:#fff; border-radius:999px; padding:7px 14px; font-size:13px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; }
+.bm-tipscard { padding:14px 16px; } .bm-tipscard h2 { display:none; } .bm-tipscard .bm-tip { margin:0; }
+.bm-tiles { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.bm-tile { background:#fff; border-radius:24px; padding:16px; box-shadow:0 8px 26px rgba(40,60,110,.07); cursor:pointer; }
+.bm-tile small { display:block; font-size:10.5px; letter-spacing:.05em; font-weight:600; color:#1E2A44; }
+.bm-tile b { display:block; font-size:21px; color:#6560FF; margin:10px 0 12px; }
+.bm-tile span { display:block; border-top:1px solid #EEF1F6; padding-top:10px; font-size:13.5px; }
+.bm-calc { margin-bottom:14px; } .bm-calc summary { cursor:pointer; padding:10px 4px; font-size:13.5px; color:#6560FF; font-weight:600; }
+.bm-gbar.big { height:10px; margin:12px 0 6px; } .bm-gbar.big i { background:#1A9E6E; transition:width .3s ease; }
+.bm-bud-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid #EEF1F6; }
+.bm-ic { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.bm-ic .bm-ico { width:18px; height:18px; }
+.bm-bud-mid { flex:1; min-width:0; } .bm-bud-top { display:flex; justify-content:space-between; gap:8px; font-size:14px; } .bm-bud-top b { font-weight:600; }
+.bm-bud-mid .bm-gbar { margin-top:7px; height:5px; } .bm-bud-mid .bm-gbar i { background:#6560FF; }
 </style>
 </head>
 <body>
@@ -259,6 +293,24 @@ html, body { background:#EEF2F6; }
   <div class="bm-pastnote" id="bm-pastnote"></div>
 
   <section class="bm-tab active" data-tab="accueil">
+    <div class="bm-card cur-only" id="bm-sim-card">
+      <h2>Épargne estimée en fin de mois</h2>
+      <div class="bm-pills" id="bm-sim-pills"><button data-sim="eco">Économe</button><button data-sim="prevu" class="active">Prévu</button><button data-sim="plus">Je dépasse</button></div>
+      <div class="bm-sim-amt" id="bm-sim-amt">—</div>
+      <div class="bm-sec-txt" id="bm-sim-sub"></div>
+      <div class="bm-field" id="bm-sim-extra-wrap" style="display:none;margin-top:10px"><label for="bm-sim-extra">Dépassement supplémentaire (€)</label><input type="number" id="bm-sim-extra" value="50"></div>
+    </div>
+    <div class="bm-card cur-only" id="bm-bud-card">
+      <div class="bm-category-title"><span>Budget du mois</span><span class="bm-category-total" id="bm-bud-total">—</span></div>
+      <div class="bm-gbar big"><i id="bm-bud-bar"></i></div>
+      <div id="bm-bud-list"></div>
+    </div>
+    <div class="bm-tiles cur-only">
+      <div class="bm-tile" data-go="bilan"><small>PRÉLÈVEMENTS À VENIR</small><b id="bm-t-up">—</b><span>Voir ›</span></div>
+      <div class="bm-tile" data-go="salaire"><small>OBJECTIF D’ÉPARGNE</small><b id="bm-t-goal">—</b><span>Régler ›</span></div>
+      <div class="bm-tile" data-go="bilan"><small>MTSANGO</small><b id="bm-t-mts">—</b><span>Voir ›</span></div>
+      <div class="bm-tile" data-go="bilan"><small>TIRELIRE</small><b id="bm-t-pot">—</b><span>Voir ›</span></div>
+    </div>
   <div class="bm-total-card cur-only">
     <div class="bm-total-label">Épargne possible ce mois-ci</div>
     <div class="bm-total-value" id="bm-total-value">0,00 €</div>
@@ -288,6 +340,7 @@ html, body { background:#EEF2F6; }
       <div><b id="bm-rv-days">—</b><span>restants</span></div>
     </div>
     <div class="bm-rv-info" id="bm-rv-info"></div>
+    <button class="bm-sec-btn" id="bm-fixgap" style="display:none;margin-top:10px"></button>
     <div class="bm-alert" id="bm-alert"></div>
   </div>
 
@@ -321,7 +374,7 @@ html, body { background:#EEF2F6; }
   </section>
 
   <section class="bm-tab" data-tab="depenses">
-    <div class="bm-pills" id="bm-pills"><button data-f="all" class="active">Tout</button><button data-f="fixe">Fixes</button><button data-f="quotidien">Quotidiennes</button><button data-f="journal">Journal</button></div>
+    <div class="bm-pills" id="bm-pills"><button data-f="all" class="active">Tout</button><button data-f="fixe">Fixes</button><button data-f="quotidien">Quotidiennes</button></div>
   <div class="bm-card" id="bm-cat-fixe">
     <div class="bm-category-title"><span>Dépenses fixes</span><span class="bm-category-total" data-cat-total="fixe">—</span></div>
     <div class="bm-items" data-cat="fixe"></div>
@@ -420,10 +473,10 @@ html, body { background:#EEF2F6; }
   <nav class="bm-nav" id="bm-nav">
     <div class="bm-nav-in">
       <button data-tab="accueil" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Accueil</span></button>
-      <button data-tab="depenses"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg><span>Dépenses</span></button>
+      <button data-tab="depenses"><svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg><span>Budgets</span></button>
       <button class="bm-fab" id="bm-fab" aria-label="Ajouter une dépense">+</button>
-      <button data-tab="salaire"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="15" r="1.2"/></svg><span>Salaire</span></button>
-      <button data-tab="bilan"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M2 20h20"/></svg><span>Bilan</span></button>
+      <button data-tab="salaire"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="15" r="1.2"/></svg><span>Profil</span></button>
+      <button data-tab="bilan"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M2 20h20"/></svg><span>Analyse</span></button>
     </div>
   </nav>
 
@@ -636,7 +689,7 @@ html, body { background:#EEF2F6; }
     const restBudget = state.categories.quotidien.reduce((sum, i) => i.checked ? sum + Math.max(0, (parseFloat(i.amount) || 0) - (parseFloat(i.spent) || 0)) : sum, 0);
     const okIds = state.categories.quotidien.filter((i) => i.checked).map((i) => i.id), mkNow = todayStr().slice(0, 7);
     const spentAfter = hasSolde ? state.journal.reduce((a, j) => (okIds.indexOf(j.line) >= 0 && String(j.date).slice(0, 7) === mkNow && (j.ts || 0) > (state.soldeTs || 0)) ? a + (parseFloat(j.amount) || 0) : a, 0) : 0;
-    let tipGap = null;
+    let tipGap = null; gapNow = null;
     const entriesAfter = hasSolde ? (state.entries || []).reduce((a, e) => (String(e.date).slice(0, 7) === mkNow && (e.ts || 0) > (state.soldeTs || 0)) ? a + (parseFloat(e.amount) || 0) : a, 0) : 0;
     const dispo = hasSolde ? solde - spentAfter + entriesAfter - fixRest - objectif : salaire - totalFixe - objectif - spentTotal;
     root.querySelector('#bm-rv-sub').textContent = hasSolde
@@ -645,7 +698,7 @@ html, body { background:#EEF2F6; }
     const info = root.querySelector('#bm-rv-info');
     if (hasSolde) {
       const ecart = solde - (salaire - entriesAfter - (totalFixe - fixRest) - (spentTotal - spentAfter));
-      tipGap = ecart;
+      tipGap = ecart; gapNow = ecart;
       const l1 = ecart < -0.5 ? 'Ton solde est inférieur de ' + fmtEUR(-ecart) + ' à ce que prévoient tes données : dépenses non notées, ou salaire saisi différent du montant réellement reçu.'
         : ecart > 0.5 ? 'Ton solde est supérieur de ' + fmtEUR(ecart) + ' à ce que prévoient tes données.'
         : 'Ton solde correspond à tes dépenses saisies.';
@@ -663,6 +716,7 @@ html, body { background:#EEF2F6; }
     renderHero(hasSolde ? solde - spentAfter + entriesAfter : salaire, hasSolde);
     renderRepartition(epargne);
     renderUpcoming();
+    renderHome(hasSolde ? solde - spentAfter + entriesAfter - fixRest : salaire - totalFixe - spentTotal, restBudget, objectif, epargne, fixRest, hasSolde ? solde - spentAfter + entriesAfter : null);
     lastEpargne = epargne;
     renderTips(epargne, objectif, tipGap);
     renderGauge(epargne, objectif);
@@ -846,8 +900,8 @@ html, body { background:#EEF2F6; }
   function showTab(name) {
     root.querySelectorAll('.bm-tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
     root.querySelectorAll('.bm-nav button').forEach((b) => b.classList.toggle('active', b.dataset.tab === name));
-    if (name === 'bilan' || name === 'salaire') { viewMonth = curMonth(); renderJournal(); }
-    root.classList.toggle('bm-nomonth', name === 'bilan' || name === 'salaire');
+    if (name === 'accueil' || name === 'salaire') { viewMonth = curMonth(); renderJournal(); }
+    root.classList.toggle('bm-nomonth', name === 'accueil' || name === 'salaire');
     try { localStorage.setItem('bm-tab', name); } catch (e) {}
     window.scrollTo(0, 0);
   }
@@ -1208,8 +1262,6 @@ html, body { background:#EEF2F6; }
     root.querySelectorAll('#bm-pills button').forEach((b) => b.classList.toggle('active', b.dataset.f === f));
     root.querySelector('#bm-cat-fixe').style.display = (f === 'all' || f === 'fixe') ? '' : 'none';
     root.querySelector('#bm-cat-quotidien').style.display = (f === 'all' || f === 'quotidien') ? '' : 'none';
-    root.querySelector('#bm-card-journal').style.display = (f === 'all' || f === 'journal') ? '' : 'none';
-    root.querySelector('#bm-card-entrees').style.display = (f === 'all' || f === 'journal') ? '' : 'none';
   }
 
   function initDesign() {
@@ -1322,7 +1374,7 @@ html, body { background:#EEF2F6; }
     if (objectif > 0 && epargne < objectif) out.push(['warn', 'Il manque ' + fmtEUR(objectif - epargne) + ' pour atteindre ton objectif d’épargne.']);
     if (objectif > 0 && epargne >= objectif) out.push(['ok', 'Objectif d’épargne atteint, avec ' + fmtEUR(epargne - objectif) + ' de marge.']);
     if (!out.length) out.push(['ok', 'Tout est sous contrôle ce mois-ci.']);
-    root.querySelector('#bm-tips').innerHTML = out.slice(0, 4).map((t) => '<div class="bm-tip ' + t[0] + '">' + esc(t[1]) + '</div>').join('');
+    root.querySelector('#bm-tips').innerHTML = out.slice(0, 1).map((t) => '<div class="bm-tip ' + t[0] + '">' + esc(t[1]) + '</div>').join('');
   }
 
   function renderMtsInputs() {
@@ -1340,6 +1392,69 @@ html, body { background:#EEF2F6; }
     root.querySelector('#bm-mts-net').textContent = rec > 0 ? 'Déjà reçu : ' + fmtEUR(rec) + ' · reste à récupérer : ' + fmtEUR(total - rec) : 'Renseigne le montant reçu à ton tour pour voir ce qu’il te reste à récupérer.';
   }
 
+
+  let gapNow = null, simMode = 'prevu', simExtra = 50;
+  function mtsTotal() {
+    const m = state.mtsango, st = String(m.start || '').split('-').map(Number), c = curMonth().split('-').map(Number);
+    const n = (st.length === 2 && st[0]) ? Math.max(0, (c[0] - st[0]) * 12 + (c[1] - st[1]) + 1) : 0;
+    return n * (parseFloat(m.monthly) || 0);
+  }
+  function renderHome(base, restBudget, objectif, epargne, fixRest, soldeNow) {
+    const fut = simMode === 'eco' ? restBudget * 0.5 : simMode === 'plus' ? restBudget + (parseFloat(simExtra) || 0) : restBudget, res = base - fut;
+    const amt = root.querySelector('#bm-sim-amt'); amt.textContent = fmtEUR(res); amt.style.color = res < 0 ? 'var(--red)' : '#1A9E6E';
+    root.querySelector('#bm-sim-sub').textContent = 'Dépenses à venir : ' + fmtEUR(fut) + (objectif > 0 ? ' · ' + (res >= objectif ? 'objectif atteint ✓' : 'il manque ' + fmtEUR(objectif - res) + ' pour ton objectif') : '');
+    root.querySelectorAll('#bm-sim-pills button').forEach((b) => b.classList.toggle('active', b.dataset.sim === simMode));
+    root.querySelector('#bm-sim-extra-wrap').style.display = simMode === 'plus' ? '' : 'none';
+    const q = state.categories.quotidien.filter((i) => i.checked);
+    const bud = q.reduce((a, i) => a + (parseFloat(i.amount) || 0), 0), sp = q.reduce((a, i) => a + (parseFloat(i.spent) || 0), 0), pct = bud > 0 ? sp / bud : (sp > 0 ? 1 : 0);
+    root.querySelector('#bm-bud-total').textContent = fmtEUR(sp) + ' / ' + fmtEUR(bud);
+    const bb = root.querySelector('#bm-bud-bar'); bb.style.width = Math.min(100, pct * 100) + '%'; bb.style.background = pct > 1 ? 'var(--red)' : pct > 0.8 ? '#F2A33A' : '#1A9E6E';
+    root.querySelector('#bm-bud-list').innerHTML = q.filter((i) => (parseFloat(i.amount) || 0) > 0 || (parseFloat(i.spent) || 0) > 0).map((i) => {
+      const b = parseFloat(i.amount) || 0, s2 = parseFloat(i.spent) || 0, tp = TYPES[i.type] || TYPES.essentiel, r = b > 0 ? s2 / b : 1;
+      return '<div class="bm-bud-row"><span class="bm-ic" style="background:' + tp.c + '22;color:' + tp.c + '">' + ico(i.type || 'essentiel') + '</span><div class="bm-bud-mid"><div class="bm-bud-top"><span>' + esc(i.label.replace(/\s*\(.*\)$/, '')) + '</span><b style="color:' + (s2 > b ? 'var(--red)' : '') + '">' + fmtEUR(s2) + ' / ' + fmtEUR(b) + '</b></div><div class="bm-gbar"><i style="width:' + Math.min(100, r * 100) + '%;background:' + (s2 > b ? 'var(--red)' : '') + '"></i></div></div></div>';
+    }).join('');
+    root.querySelector('#bm-t-up').textContent = fmtEUR(fixRest);
+    root.querySelector('#bm-t-goal').textContent = objectif > 0 ? fmtEUR(objectif) : 'À définir';
+    root.querySelector('#bm-t-mts').textContent = fmtEUR(mtsTotal());
+    root.querySelector('#bm-t-pot').textContent = fmtEUR(state.savings.log.reduce((a, l) => a + (parseFloat(l.amount) || 0), 0));
+    const fs = root.querySelector('#bm-foot-solde'); if (fs) fs.textContent = soldeNow !== null ? 'Solde bancaire : ' + fmtEUR(soldeNow) : 'Solde bancaire non renseigné';
+    const fg = root.querySelector('#bm-fixgap');
+    if (gapNow !== null && gapNow < -0.5) { fg.style.display = ''; fg.textContent = 'Régulariser −' + fmtEUR(-gapNow).replace('−', '') + ' (dépenses non notées)'; } else fg.style.display = 'none';
+  }
+  function initLayout() {
+    const find = (t) => [...root.querySelectorAll('.bm-card')].find((c) => { const h = c.querySelector('h2'); return h && h.textContent.trim() === t; });
+    const acc = root.querySelector('.bm-tab[data-tab="accueil"]'), ana = root.querySelector('.bm-tab[data-tab="bilan"]');
+    const rv = find('Reste à vivre'), tips = find('Conseils'), donut = find('Où va ton revenu ?'), up = find('Prochains prélèvements'), mts = find('Mtsango');
+    const total = root.querySelector('.bm-total-card'), sim = root.querySelector('#bm-sim-card');
+    const frame = document.createElement('div'); frame.className = 'bm-frame cur-only';
+    acc.insertBefore(frame, sim); frame.appendChild(rv); rv.classList.remove('cur-only');
+    const foot = document.createElement('div'); foot.className = 'bm-frame-foot'; foot.innerHTML = '<span id="bm-foot-solde"></span><button id="bm-foot-btn">Mettre à jour</button>'; frame.appendChild(foot);
+    tips.classList.add('bm-tipscard'); acc.insertBefore(tips, frame);
+    const det = document.createElement('details'); det.className = 'bm-calc cur-only'; det.innerHTML = '<summary>Comment c’est calculé ?</summary>'; det.appendChild(total); acc.appendChild(det);
+    [donut, root.querySelector('#bm-card-journal'), root.querySelector('#bm-card-entrees'), up, mts].reverse().forEach((c) => ana.insertBefore(c, ana.firstChild));
+    const nav = root.querySelector('.bm-nav-in'), b1 = nav.querySelector('button[data-tab="bilan"]'), b2 = nav.querySelector('button[data-tab="salaire"]');
+    nav.insertBefore(b1, b2);
+  }
+  function initHome() {
+    initLayout();
+    root.querySelector('#bm-sim-pills').addEventListener('click', (e) => { if (e.target.dataset.sim) { simMode = e.target.dataset.sim; compute(); } });
+    root.querySelector('#bm-sim-extra').addEventListener('input', (e) => { simExtra = e.target.value; compute(); });
+    root.querySelector('#bm-foot-btn').addEventListener('click', () => {
+      const v = parseFloat(String(prompt('Solde bancaire actuel (€)', state.solde || '') || '').replace(',', '.'));
+      if (isNaN(v)) return;
+      state.solde = String(v); state.soldeTs = Date.now(); root.querySelector('#bm-solde').value = state.solde; compute(); save();
+    });
+    root.querySelector('#bm-fixgap').addEventListener('click', () => {
+      if (gapNow === null || gapNow >= -0.5) return;
+      const lines = state.categories.quotidien, ln = lines.find((i) => i.type === 'imprevu' || /impr[ée]vu/i.test(i.label)) || lines[0];
+      if (!ln) return;
+      state.journal.push({ id: newId(), ts: state.soldeTs || 0, date: todayStr(), amount: Math.round(-gapNow * 100) / 100, line: ln.id, note: 'Régularisation (dépenses non notées)' });
+      renderJournal(); compute(); save();
+    });
+    root.addEventListener('click', (e) => { const g = e.target.closest ? e.target.closest('[data-go]') : null; if (g) { showTab(g.dataset.go); compute(); } });
+    compute();
+  }
+
   function init() {
     load();
     migrate();
@@ -1350,6 +1465,7 @@ html, body { background:#EEF2F6; }
     initSecurity();
     initExtras();
     initDesign();
+    initHome();
   }
 
   init();
